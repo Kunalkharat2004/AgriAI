@@ -6,14 +6,15 @@ import {
   updateOrderStatus,
 } from "../controllers/orderController";
 import { authenticate } from "../middlewares/authMiddleware";
+import { authentication } from "../middlewares/authentication";
 
 const router = express.Router();
 
-// Protected routes
-router.post("/", authenticate, createOrder);
-router.get("/", authenticate, getOrders);
-router.get("/:id", authenticate, getOrderById);
-router.put("/:id/status", authenticate, updateOrderStatus);
+// Protected routes - use both middleware for backward compatibility
+router.post("/", [authenticate, authentication], createOrder);
+router.get("/", [authenticate, authentication], getOrders);
+router.get("/:id", [authenticate, authentication], getOrderById);
+router.put("/:id/status", [authenticate, authentication], updateOrderStatus);
 
 // Test endpoint (to be removed in production)
 router.post("/test", (req, res) => {

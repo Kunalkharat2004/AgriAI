@@ -24,9 +24,6 @@ const generateOrderNumber = (): string => {
   return `${prefix}-${timestamp}-${random}`;
 };
 
-// Mock orders data (replace with database in production)
-let orders: any[] = [];
-
 // @desc    Create a new order
 // @route   POST /api/orders
 // @access  Private
@@ -36,34 +33,109 @@ export const createOrder = async (
   next: NextFunction
 ) => {
   try {
-    const { items, customerInfo, totalAmount } = req.body;
+    console.log("Received order request:", JSON.stringify(req.body, null, 2));
+    console.log("User in request:", (req as AuthRequest).user);
 
-    // Validate request body
-    if (!items || !customerInfo || !totalAmount) {
-      throw new CustomError("Please provide all required fields", 400);
-    }
-
-    // Create new order with user ID from authenticated user
-    const newOrder = {
-      id: Date.now().toString(),
-      userId: req.user.id,
+    // Extract the data from the request body with flexible structure
+    const {
       items,
       customerInfo,
       totalAmount,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      shippingInfo,
+      paymentMethod,
+      shippingMethod,
+      subTotal,
+      total,
+    } = req.body;
 
-    // In a real app, save to database
-    orders.push(newOrder);
+    // Validate request body with support for both formats
+    if (
+      !items ||
+      items.length === 0 ||
+      (!customerInfo && !shippingInfo) ||
+      (!totalAmount && !total && !subTotal)
+    ) {
+      throw new CustomError(
+        "Please provide all required fields: items, shipping information, and total amount",
+        400
+      );
+    }
+
+    // Normalize shipping info format
+    const shippingAddress = customerInfo || shippingInfo;
+
+    // Check if shipping address has all required fields
+    if (
+      !shippingAddress.name ||
+      !shippingAddress.phone ||
+      !shippingAddress.address ||
+      !shippingAddress.city ||
+      !shippingAddress.state ||
+      !shippingAddress.pincode
+    ) {
+      throw new CustomError(
+        "Shipping address must include name, phone, address, city, state, and pincode",
+        400
+      );
+    }
+
+    // Normalize order items format
+    const orderItems = items.map((item: any) => {
+      // Create base order item without product field
+      const orderItem: any = {
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        image:
+          item.image ||
+          "https://via.placeholder.com/300x180?text=Product+Image",
+      };
+
+      // Only add product field if it's a valid MongoDB ObjectId string
+      if (
+        item.productId &&
+        typeof item.productId === "string" &&
+        mongoose.Types.ObjectId.isValid(item.productId)
+      ) {
+        orderItem.product = new mongoose.Types.ObjectId(item.productId);
+      }
+      // Don't include product field if it's a number or invalid ObjectId
+
+      return orderItem;
+    });
+
+    console.log("Processed order items:", JSON.stringify(orderItems, null, 2));
+
+    // Create the order object
+    const newOrder = new Order({
+      orderNumber: generateOrderNumber(),
+      user: (req as AuthRequest).user.id,
+      orderItems: orderItems,
+      shippingAddress: shippingAddress,
+      paymentMethod: paymentMethod || "cod",
+      shippingPrice: shippingMethod?.price || 60,
+      totalPrice: totalAmount || total || subTotal,
+      status: "pending",
+    });
+
+    // Save the order to the database
+    const savedOrder = await newOrder.save();
+    console.log("Created new order:", JSON.stringify(savedOrder, null, 2));
+
+    // Emit socket event for new order if available
+    try {
+      emitNewOrder(savedOrder);
+    } catch (error) {
+      console.log("Socket emission error (non-critical):", error);
+    }
 
     res.status(201).json({
       success: true,
       message: "Order created successfully",
-      order: newOrder,
+      order: savedOrder,
     });
   } catch (error) {
+    console.error("Error creating order:", error);
     next(error);
   }
 };
@@ -77,8 +149,10 @@ export const getOrders = async (
   next: NextFunction
 ) => {
   try {
-    // In a real app, filter from database
-    const userOrders = orders.filter((order) => order.userId === req.user.id);
+    const userId = (req as AuthRequest).user.id;
+    const userOrders = await Order.find({ user: userId }).sort({
+      createdAt: -1,
+    });
 
     res.status(200).json({
       success: true,
@@ -99,14 +173,19 @@ export const getOrderById = async (
   next: NextFunction
 ) => {
   try {
-    const order = orders.find((o) => o.id === req.params.id);
+    const orderId = req.params.id;
+    const userId = (req as AuthRequest).user.id;
+    const userRole = (req as AuthRequest).user.role;
+
+    // Find the order in the database
+    const order = await Order.findById(orderId);
 
     if (!order) {
       throw new CustomError("Order not found", 404);
     }
 
-    // Check if the order belongs to the authenticated user
-    if (order.userId !== req.user.id && req.user.role !== "admin") {
+    // Check if the order belongs to the authenticated user or user is admin
+    if (order.user.toString() !== userId && userRole !== "admin") {
       throw new CustomError("Not authorized to access this order", 403);
     }
 
@@ -289,28 +368,41 @@ export const updateOrderStatus = async (
 ) => {
   try {
     const { status } = req.body;
+    const orderId = req.params.id;
 
     if (!status) {
       throw new CustomError("Please provide a status", 400);
     }
 
-    const orderIndex = orders.findIndex((o) => o.id === req.params.id);
+    // Find the order in the database
+    const order = await Order.findById(orderId);
 
-    if (orderIndex === -1) {
+    if (!order) {
       throw new CustomError("Order not found", 404);
     }
 
     // Update order status
-    orders[orderIndex] = {
-      ...orders[orderIndex],
-      status,
-      updatedAt: new Date().toISOString(),
-    };
+    order.status = status;
+    order.updatedAt = new Date();
+
+    // Save the updated order
+    const updatedOrder = await order.save();
+
+    // Emit socket event for order update if available
+    try {
+      emitOrderUpdate(orderId, {
+        status: status,
+        orderId: orderId,
+        userId: order.user.toString(),
+      });
+    } catch (error) {
+      console.log("Socket emission error (non-critical):", error);
+    }
 
     res.status(200).json({
       success: true,
       message: "Order status updated",
-      order: orders[orderIndex],
+      order: updatedOrder,
     });
   } catch (error) {
     next(error);

@@ -109,6 +109,7 @@ const CartPage = () => {
       try {
         // Make sure we have latest token
         initializeToken();
+        console.log("Current token:", useTokenStore.getState().token);
 
         // Check if user is logged in before submitting
         if (!token) {
@@ -124,12 +125,14 @@ const CartPage = () => {
 
         const orderData = {
           items: cart.items.map((item) => ({
-            productId: item.id,
+            productId: item.id ? item.id.toString() : null,
             name: item.name,
             quantity: item.quantity,
             price: item.price,
             category: item.category,
-            image: item.image,
+            image:
+              item.image ||
+              "https://via.placeholder.com/300x180?text=Product+Image",
           })),
           shippingInfo: shippingInfo,
           paymentMethod: shippingInfo.paymentMethod,

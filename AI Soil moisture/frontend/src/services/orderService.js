@@ -68,10 +68,15 @@ export const createOrder = async (orderData) => {
     console.log("Making order request to:", url);
     console.log("Order data:", JSON.stringify(orderData));
 
+    // Get auth headers properly
     const headers = getAuthHeader();
     console.log("Request headers:", headers);
-    console.log("URL is this->:", url);
-    const response = await axios.post(url, orderData, headers);
+
+    // Make the request with proper configuration
+    const response = await axios.post(url, orderData, {
+      headers: headers.headers,
+      withCredentials: true,
+    });
 
     console.log("Order response:", response.data);
     return response.data;
