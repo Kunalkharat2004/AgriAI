@@ -13,10 +13,10 @@ import useTokenStore from "../../store/useTokenStore";
 const MainLayout = () => {
 	const { token } = useTokenStore((state) => state);
 
-	// Redirect if token is missing
-	// if (!token) {
-	// 	return <Navigate to="/auth/login" replace />;
-	// }
+	// // Redirect if token is missing
+	if (!token) {
+		return <Navigate to="/auth/login" replace />;
+	}
 
 	// const { isLoading, toggleLoading } = useContext(commonContext);
 

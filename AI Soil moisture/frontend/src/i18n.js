@@ -58,7 +58,7 @@ const resources = {
  
 
        // HomePage texts
-       "homepage.title": "Krushi Mitra",
+       "homepage.title": "Krishi Mitra",
        "homepage.description": "Leverage our advanced AI tools to enhance your farming practices. Our platform provides personalized pesticide recommendations, soil analysis, and market pricing predictions to help you grow healthier crops and maximize profits.",
        "homepage.getStarted": "Get Started",
        "homepage.viewMore": "View More",

@@ -1,24 +1,59 @@
 import express from "express";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
-import usersRoute from "./routes/usersRoute"
-import contactRoute from "./routes/contactRoute"
-import feedBackRoute from "./routes/feedBackRoute"
+import cors from "cors";
+import morgan from "morgan";
+import { config } from "./config/config";
+import userRoutes from "./routes/userRoutes";
+import productRoutes from "./routes/productRoutes";
+import orderRoutes from "./routes/orderRoutes";
 
-import cors from "cors"
-import { authentication } from "./middlewares/authentication";
-
+// Create Express app
 const app = express();
-app.use(cors({
-    origin:"*"
-    
-}))
 
-app.use(express.json())
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://your-production-frontend.com",
+    ],
+    methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Authorization"],
+  })
+);
 
-app.use("/api/users",usersRoute)
-app.use("/api/query",authentication,contactRoute)
-app.use("/api/feedback",authentication,feedBackRoute)
+// Logging in development mode
+if (config.nodeEnv === "development") {
+  app.use(morgan("dev"));
+}
 
+// Log all incoming requests for debugging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
+// API Routes
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+
+// Root endpoint
+app.get("/", (req, res) => {
+  res.json({
+    message: "AgriAI API is running",
+    environment: config.nodeEnv,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Error handling middleware
 app.use(globalErrorHandler);
 
-export default app;
+// Export app
+export { app };

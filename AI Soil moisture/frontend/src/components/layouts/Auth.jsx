@@ -4,9 +4,9 @@ import useTokenStore from "../../store/useTokenStore";
 
 const Auth = () => {
 	const { token } = useTokenStore((state) => state);
-	// if (token) {
-	// 	return <Navigate to={"/home"} replace />;
-	// }
+	if (token) {
+		return <Navigate to={"/home"} replace />;
+	}
 	return (
 		<>
 		<ScrollToTop/>

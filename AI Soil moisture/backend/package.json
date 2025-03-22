@@ -1,50 +1,40 @@
 {
-  "name": "AI Invoice Matcher",
+  "name": "agri-market-backend",
   "version": "1.0.0",
-  "description": "This is a project for matching invoices with the help of AI",
+  "description": "Backend for AgriMarket",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "nodemon dist/server.js",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "dev": "nodemon --exec ts-node server.ts",
+    "build": "tsc"
   },
   "keywords": [
-    "react",
-    "express",
-    "node",
-    "next.js"
+    "agriculture",
+    "e-commerce",
+    "farming"
   ],
   "author": "Kunal Kharat <kunalkharat2004@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.17",
-    "@types/multer": "^1.4.11",
+    "@types/morgan": "^1.9.9",
     "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.4.0",
+    "colors": "^1.4.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-validator": "^7.1.0",
-    "firebase-admin": "^12.6.0",
-    "http-errors": "^2.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.8.0",
-    "mongoose": "^8.5.2",
-    "multer": "^1.4.5-lts.1",
-    "stripe": "^17.4.0"
+    "mongoose": "^7.6.3",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.0",
-    "@types/dotenv": "^8.2.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^22.2.0",
-    "eslint": "^9.9.0",
-    "globals": "^15.9.0",
+    "@types/node": "^20.11.30",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.0.1"
+    "typescript": "^5.4.3"
   }
 }

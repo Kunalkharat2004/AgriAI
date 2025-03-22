@@ -1,11 +1,13 @@
-import {config as con} from "dotenv"
-con()
+import dotenv from "dotenv";
 
-const _config = {
-    port: process.env.PORT,
-    databaseUrl: process.env.MONGO_CONNECTION_URL,
-    env:process.env.NODE_ENV,
-    jwtSecret: process.env.JWT_SECRET,
-}
+// Load environment variables
+dotenv.config();
 
-export const config = Object.freeze(_config);
+export const config = {
+  nodeEnv: process.env.NODE_ENV || "development",
+  port: parseInt(process.env.PORT || "3601", 10),
+  mongoURI:
+    process.env.MONGO_CONNECTION_URL || "mongodb://localhost:27017/agri-ai",
+  jwtSecret: process.env.JWT_SECRET || "your-secret-key",
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1d",
+};

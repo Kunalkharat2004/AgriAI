@@ -1,18 +1,25 @@
 import mongoose from "mongoose";
 import { config } from "./config";
-const connectDB = async () => {
+import colors from "colors";
+
+// Enable colors
+colors.enable();
+
+const connectDB = async (): Promise<boolean> => {
   try {
-    mongoose.connection.on("connected", () => {
-      ("Successfully connected to database!");
-    });
+    const conn = await mongoose.connect(
+      config.mongoURI as string,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      } as mongoose.ConnectOptions
+    );
 
-    mongoose.connection.on("error", () => {
-      console.error("Connection to database falied!");
-    });
-
-    await mongoose.connect(config.databaseUrl as string);
-  } catch (err) {
-    console.error("Failed connecting to database!", err);
+    console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline);
+    return true;
+  } catch (error) {
+    const err = error as Error;
+    console.error(`Error connecting to MongoDB: ${err.message}`.red.bold);
     process.exit(1);
   }
 };
