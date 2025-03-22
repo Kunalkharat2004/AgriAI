@@ -4,17 +4,33 @@ import {
   getOrders,
   getOrderById,
   updateOrderStatus,
+  getOrdersDashboard,
+  getAllOrders,
 } from "../controllers/orderController";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authentication } from "../middlewares/authentication";
+import { adminAuth } from "../middlewares/authentication";
 
 const router = express.Router();
 
 // Protected routes - use both middleware for backward compatibility
 router.post("/", [authenticate, authentication], createOrder);
 router.get("/", [authenticate, authentication], getOrders);
+router.get("/user", [authenticate, authentication], getOrders);
 router.get("/:id", [authenticate, authentication], getOrderById);
 router.put("/:id/status", [authenticate, authentication], updateOrderStatus);
+
+// Admin-only routes
+router.get(
+  "/admin/dashboard",
+  [authenticate, authentication, adminAuth],
+  getOrdersDashboard
+);
+router.get(
+  "/admin/all",
+  [authenticate, authentication, adminAuth],
+  getAllOrders
+);
 
 // Test endpoint (to be removed in production)
 router.post("/test", (req, res) => {

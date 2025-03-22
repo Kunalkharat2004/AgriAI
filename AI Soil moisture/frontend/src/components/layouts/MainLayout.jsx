@@ -1,50 +1,39 @@
 import Footer from "../common/Footer";
 import Navbar from "../common/Navbar";
-import { Navigate, Outlet } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import ScrollToTop from "../common/ScrollToTop";
 import ChatBot from "../common/Chatbot";
-import useScrollDisable from "../../hooks/useScrollDisable";
-import useDocTitle from "../../hooks/useDocTitle";
-import Preloader from "../common/Preloader";
-import commonContext from "../../context/common/commonContext";
 import useTokenStore from "../../store/useTokenStore";
 
 const MainLayout = () => {
-	const { token } = useTokenStore((state) => state);
+  const { token, userRole } = useTokenStore((state) => state);
+  const location = useLocation();
 
-	// // Redirect if token is missing
-	if (!token) {
-		return <Navigate to="/auth/login" replace />;
-	}
+  // Redirect if token is missing
+  if (!token) {
+    return <Navigate to="/auth/login" replace />;
+  }
 
-	// const { isLoading, toggleLoading } = useContext(commonContext);
+  // Redirect admins to admin dashboard only if they're on the home page
+  // This prevents redirect loops when navigating between pages
+  if (
+    userRole === "admin" &&
+    (location.pathname === "/" || location.pathname === "/home")
+  ) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
-	// useEffect(() => {
-	// 	toggleLoading(true);
-	// 	const timer = setTimeout(() => toggleLoading(false), 2000);
-	// 	return () => clearTimeout(timer); // Cleanup function
-	// }, [toggleLoading]);
-
-	// useScrollDisable(isLoading);
-	// useDocTitle();
-
-	// // Show preloader while loading
-	// if (isLoading) {
-	// 	return <Preloader />;
-	// }
-
-	return (
-		<div className="flex flex-col min-h-screen">
-			<ScrollToTop />
-			<Navbar />
-			<main className="flex-grow">
-				<Outlet />
-			</main>
-			<Footer />
-			<ChatBot />
-		</div>
-	);
+  return (
+    <div className="flex flex-col min-h-screen">
+      <ScrollToTop />
+      <Navbar />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      <Footer />
+      <ChatBot />
+    </div>
+  );
 };
 
 export default MainLayout;

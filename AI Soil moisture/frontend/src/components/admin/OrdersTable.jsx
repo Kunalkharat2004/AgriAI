@@ -127,7 +127,7 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
             Current status:{" "}
             <Chip
               size="small"
-              label={selectedOrder.status.toUpperCase()}
+              label={(selectedOrder.status || "pending").toUpperCase()}
               color={getStatusColor(selectedOrder.status)}
             />
           </Typography>
@@ -197,7 +197,7 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                 <strong>Status:</strong>{" "}
                 <Chip
                   size="small"
-                  label={selectedOrder.status.toUpperCase()}
+                  label={(selectedOrder.status || "pending").toUpperCase()}
                   color={getStatusColor(selectedOrder.status)}
                 />
               </Typography>
@@ -266,18 +266,31 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedOrder.items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell align="right">
-                        ${item.price.toFixed(2)}
-                      </TableCell>
-                      <TableCell align="right">{item.quantity}</TableCell>
-                      <TableCell align="right">
-                        ${(item.price * item.quantity).toFixed(2)}
+                  {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                    selectedOrder.items.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell align="right">
+                          ${item.price ? item.price.toFixed(2) : "0.00"}
+                        </TableCell>
+                        <TableCell align="right">
+                          {item.quantity || 0}
+                        </TableCell>
+                        <TableCell align="right">
+                          $
+                          {item.price && item.quantity
+                            ? (item.price * item.quantity).toFixed(2)
+                            : "0.00"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        No items in this order
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                   <TableRow>
                     <TableCell colSpan={2} />
                     <TableCell>
@@ -285,7 +298,10 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle2">
-                        ${selectedOrder.subTotal.toFixed(2)}
+                        $
+                        {selectedOrder.subTotal
+                          ? selectedOrder.subTotal.toFixed(2)
+                          : "0.00"}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -297,9 +313,11 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                     <TableCell align="right">
                       <Typography variant="subtitle2">
                         $
-                        {(selectedOrder.total - selectedOrder.subTotal).toFixed(
-                          2
-                        )}
+                        {selectedOrder.total && selectedOrder.subTotal
+                          ? (
+                              selectedOrder.total - selectedOrder.subTotal
+                            ).toFixed(2)
+                          : "0.00"}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -312,7 +330,10 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle2" fontWeight="bold">
-                        ${selectedOrder.total.toFixed(2)}
+                        $
+                        {selectedOrder.total
+                          ? selectedOrder.total.toFixed(2)
+                          : "0.00"}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -375,10 +396,12 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                 <TableCell>{order.orderNumber}</TableCell>
                 <TableCell>{formatDate(order.createdAt)}</TableCell>
                 <TableCell>{order.user?.email || "N/A"}</TableCell>
-                <TableCell align="right">${order.total.toFixed(2)}</TableCell>
+                <TableCell align="right">
+                  ${order.total ? order.total.toFixed(2) : "0.00"}
+                </TableCell>
                 <TableCell>
                   <Chip
-                    label={order.status.toUpperCase()}
+                    label={(order.status || "pending").toUpperCase()}
                     color={getStatusColor(order.status)}
                     size="small"
                   />
