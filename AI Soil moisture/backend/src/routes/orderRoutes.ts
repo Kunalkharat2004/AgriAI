@@ -4,6 +4,7 @@ import {
   getOrders,
   getOrderById,
   updateOrderStatus,
+  getUserOrders,
 } from "../controllers/orderController";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authentication } from "../middlewares/authentication";
@@ -13,6 +14,7 @@ const router = express.Router();
 // Protected routes - use both middleware for backward compatibility
 router.post("/", [authenticate, authentication], createOrder);
 router.get("/", [authenticate, authentication], getOrders);
+router.get("/user", [authenticate, authentication], getUserOrders);
 router.get("/:id", [authenticate, authentication], getOrderById);
 router.put("/:id/status", [authenticate, authentication], updateOrderStatus);
 

@@ -198,25 +198,67 @@ export const getOrderById = async (
   }
 };
 
-// Get all orders for a user
-export const getUserOrders = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+/**
+ * Get orders for the current user
+ * @route GET /api/orders/user
+ * @access Private
+ */
+export const getUserOrders = async (req: Request, res: Response) => {
   try {
+    // Use authRequest to get the authenticated user
     const authReq = req as AuthRequest;
-    const userId = authReq.user._id;
+    const userId = authReq.user?._id;
 
-    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+    if (!userId) {
+      return res.status(401).json({
+        status: "error",
+        message: "User not authenticated",
+      });
+    }
 
-    res.status(200).json({
-      status: "success",
-      results: orders.length,
-      data: orders,
+    // Default pagination
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get orders for the user with pagination
+    const totalItems = await Order.countDocuments({ user: userId });
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "email name")
+      .lean();
+
+    // Add formatted orderNumber to each order if it doesn't exist
+    const formattedOrders = orders.map((order: any) => {
+      // If orderNumber already exists, use it, otherwise generate
+      if (order.orderNumber) {
+        return order;
+      }
+      return {
+        ...order,
+        orderNumber: `ORD-${order._id.toString().slice(-6).toUpperCase()}`,
+      };
     });
-  } catch (err) {
-    next(err);
+
+    return res.status(200).json({
+      status: "success",
+      data: formattedOrders,
+      pagination: {
+        totalItems,
+        itemsPerPage: limit,
+        currentPage: page,
+        totalPages: Math.ceil(totalItems / limit),
+      },
+    });
+  } catch (error: any) {
+    console.error("Error fetching user orders:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to fetch orders",
+      error: error.message,
+    });
   }
 };
 
