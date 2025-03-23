@@ -37,17 +37,7 @@ export const getDashboardStats = async () => {
     console.log("Dashboard response:", response.status, response.data);
     return {
       status: "success",
-      data: response.data.data || {
-        counts: {
-          pending: 0,
-          processing: 0,
-          shipped: 0,
-          delivered: 0,
-          cancelled: 0,
-          total: 0,
-        },
-        recentOrders: [],
-      },
+      data: response.data.data,
     };
   } catch (error) {
     console.error(
@@ -60,17 +50,7 @@ export const getDashboardStats = async () => {
         error.response?.data?.message ||
         error.message ||
         "Failed to fetch dashboard stats",
-      data: {
-        counts: {
-          pending: 0,
-          processing: 0,
-          shipped: 0,
-          delivered: 0,
-          cancelled: 0,
-          total: 0,
-        },
-        recentOrders: [],
-      },
+      data: null,
     };
   }
 };
@@ -86,13 +66,8 @@ export const getAllOrders = async (page = 1, limit = 10, status = "all") => {
 
     return {
       status: "success",
-      data: response.data.data || [],
-      pagination: response.data.pagination || {
-        currentPage: 1,
-        totalPages: 1,
-        totalItems: 0,
-        itemsPerPage: limit,
-      },
+      data: response.data.data,
+      pagination: response.data.pagination,
     };
   } catch (error) {
     console.error(
@@ -106,12 +81,6 @@ export const getAllOrders = async (page = 1, limit = 10, status = "all") => {
         error.message ||
         "Failed to fetch orders",
       data: [],
-      pagination: {
-        currentPage: 1,
-        totalPages: 1,
-        totalItems: 0,
-        itemsPerPage: limit,
-      },
     };
   }
 };

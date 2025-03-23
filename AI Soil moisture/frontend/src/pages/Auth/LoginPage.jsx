@@ -149,14 +149,7 @@ export default function LoginPage() {
         console.log(data);
         const token = data.access_token;
         setToken(token);
-
-        // Extract user role and redirect accordingly
-        const role = data.role || (data.user && data.user.role);
-        if (role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/");
-        }
+        navigate("/");
       } else {
         toast.error(`Google Sign-In failed: ${data.message}`);
       }
