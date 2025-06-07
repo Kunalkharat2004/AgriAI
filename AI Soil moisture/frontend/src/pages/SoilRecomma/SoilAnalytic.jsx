@@ -2,31 +2,24 @@ import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import SideBar from "./Sidebar";
-import CropMarketPriceAnalysis from "./SideNavs/CropMarketPriceAnalysis";
-import Finding from "./SideNavs/Finding";
-import WarehouseRecommandator from "./SideNavs/WarehouseRecommandator";
-import PostHarvestPlanner from "./SideNavs/PostHarvestPlanner";
+import UserSoilReport from "./SideNavs/UserSoilReport";
+import Schemes from "./SideNavs/SoilReport";
 
-
-const CropMarketTrendAnalyzerPage = () => {
+const FinancialSupport = () => {
 	// State to track the currently selected component
-	const [activeComponent, setActiveComponent] = useState("Finding");
+	const [activeComponent, setActiveComponent] = useState("Schemes");
 	const [sidebarOpen, setSidebarOpen] = useState(true);
-	const [activeItem, setActiveItem] = useState("Finding"); // State to track active item
+	const [activeItem, setActiveItem] = useState("Schemes"); 
 
 	// Function to render the component based on the selected item
 	const renderActiveComponent = () => {
 		switch (activeComponent) {
-			case "Finding":
-				return <Finding />;
-			case "CropMarketPriceAnalysis":
-				return <CropMarketPriceAnalysis />;
-			case "WarehouseRecommandator":
-				return <WarehouseRecommandator />;
-			case "PostHarvestPlanner":
-				return <PostHarvestPlanner />;
+			case "Schemes":
+				return <Schemes />;
+			case "Loan":
+				return <UserSoilReport />;
 			default:
-				return <Finding />;
+				return <Schemes />;
 		}
 	};
 
@@ -63,4 +56,4 @@ const CropMarketTrendAnalyzerPage = () => {
 	);
 };
 
-export default CropMarketTrendAnalyzerPage;
+export default FinancialSupport;

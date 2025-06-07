@@ -76,18 +76,94 @@ const OrderDetailPage = () => {
     }
   }, [orderId, user]);
 
+  const formatCurrency = (amount) => {
+    return `₹${parseFloat(amount || 0).toFixed(2)}`;
+  };
+
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
       const response = await getOrderById(orderId);
-      setOrder(response.data);
+      console.log("Full order details response:", response);
+      
+      let orderData;
+      
+      // Handle different response structures
+      if (response.order) {
+        // Response format: { success: true, order: {...} }
+        orderData = response.order;
+      } else if (response.data) {
+        // Response format: { status: 'success', data: {...} }
+        orderData = response.data;
+      } else {
+        // Fallback to using the entire response if it has required fields
+        if (response._id || response.orderNumber) {
+          orderData = response;
+        } else {
+          throw new Error("Invalid order data structure received");
+        }
+      }
+      
+      // Ensure orderItems or items is available
+      const items = orderData.orderItems || orderData.items || [];
+      console.log("Order items:", items);
+      
+      // Calculate subtotal from order items if not provided
+      const calculatedSubtotal = items.reduce((sum, item) => 
+        sum + ((Number(item.price) || 0) * (Number(item.quantity) || 1)), 0);
+      
+      // Use existing subTotal or calculate it
+      orderData.subTotal = orderData.subTotal || calculatedSubtotal;
+      console.log("Calculated subtotal:", calculatedSubtotal);
+      
+      // Handle mapping between different field names
+      orderData.shippingMethod = orderData.shippingMethod || {
+        name: "Standard Shipping",
+        price: Number(orderData.shippingPrice) || 0
+      };
+      
+      console.log("Shipping method/price:", orderData.shippingMethod, orderData.shippingPrice);
+      
+      // If totalPrice exists but total doesn't, use totalPrice
+      if (orderData.totalPrice && !orderData.total) {
+        orderData.total = Number(orderData.totalPrice);
+      }
+      
+      // If neither exists, calculate total
+      if (!orderData.total && !orderData.totalPrice) {
+        const subtotal = Number(orderData.subTotal) || 0;
+        const shipping = Number(orderData.shippingMethod?.price) || Number(orderData.shippingPrice) || 0;
+        orderData.total = subtotal + shipping;
+      }
+      
+      console.log("Final order total:", orderData.total);
+      
+      // Map shippingAddress to shippingInfo if needed
+      if (orderData.shippingAddress && !orderData.shippingInfo) {
+        orderData.shippingInfo = orderData.shippingAddress;
+      }
+      
+      console.log("Processed order data:", orderData);
+      setOrder(orderData);
       setError(null);
     } catch (err) {
       console.error("Error fetching order details:", err);
-      setError(
-        err.response?.data?.message ||
-          "Failed to load order details. Please try again."
-      );
+      let errorMessage = "Failed to load order details. Please try again.";
+      
+      if (err.response) {
+        console.error("Error response:", err.response);
+        if (err.response.status === 404) {
+          errorMessage = "Order not found. It may have been removed or you don't have access.";
+        } else if (err.response.status === 403) {
+          errorMessage = "You don't have permission to view this order.";
+        } else if (err.response.status === 401) {
+          errorMessage = "Authentication required. Please log in again.";
+        } else if (err.response.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -137,6 +213,13 @@ const OrderDetailPage = () => {
       card: "Card Payment",
     };
     return methods[method] || method;
+  };
+
+  const calculateSubtotal = (orderData) => {
+    if (!orderData) return 0;
+    
+    const items = orderData.orderItems || orderData.items || [];
+    return items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
   };
 
   if (loading) {
@@ -214,15 +297,17 @@ const OrderDetailPage = () => {
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">
-                  Placed on {formatDate(order.createdAt)}
+                  Placed on {order.createdAt ? formatDate(order.createdAt) : 'N/A'}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6} sx={{ textAlign: { sm: "right" } }}>
                 <Chip
                   label={
-                    order.status.charAt(0).toUpperCase() + order.status.slice(1)
+                    order.status 
+                      ? order.status.charAt(0).toUpperCase() + order.status.slice(1)
+                      : "Pending"
                   }
-                  color={getStatusChipColor(order.status)}
+                  color={getStatusChipColor(order.status || "pending")}
                   sx={{ mb: 1 }}
                 />
                 {(order.status === "pending" ||
@@ -250,8 +335,8 @@ const OrderDetailPage = () => {
               Order Items
             </Typography>
             <List disablePadding>
-              {order.items.map((item, index) => (
-                <React.Fragment key={item.productId}>
+              {(order.orderItems || order.items || []).map((item, index) => (
+                <React.Fragment key={item.productId || item.product || index}>
                   <ListItem
                     sx={{
                       py: 2,
@@ -286,7 +371,7 @@ const OrderDetailPage = () => {
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="subtitle1">{item.name}</Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Category: {item.category}
+                          Category: {item.category || 'General'}
                         </Typography>
                         <Box
                           sx={{
@@ -297,16 +382,16 @@ const OrderDetailPage = () => {
                           }}
                         >
                           <Typography variant="body2">
-                            ₹{item.price.toFixed(2)} × {item.quantity}
+                            {formatCurrency(item.price)} × {item.quantity || 1}
                           </Typography>
                           <Typography variant="subtitle2" fontWeight={600}>
-                            ₹{(item.price * item.quantity).toFixed(2)}
+                            {formatCurrency((item.price || 0) * (item.quantity || 1))}
                           </Typography>
                         </Box>
                       </Box>
                     </Box>
                   </ListItem>
-                  {index < order.items.length - 1 && <Divider />}
+                  {index < (order.orderItems || order.items || []).length - 1 && <Divider />}
                 </React.Fragment>
               ))}
             </List>
@@ -327,7 +412,7 @@ const OrderDetailPage = () => {
                     </Grid>
                     <Grid item xs={4} sx={{ textAlign: "right" }}>
                       <Typography variant="body2">
-                        ₹{order.subTotal.toFixed(2)}
+                        {formatCurrency(calculateSubtotal(order))}
                       </Typography>
                     </Grid>
                     <Grid item xs={8}>
@@ -335,7 +420,7 @@ const OrderDetailPage = () => {
                     </Grid>
                     <Grid item xs={4} sx={{ textAlign: "right" }}>
                       <Typography variant="body2">
-                        ₹{order.shippingMethod.price.toFixed(2)}
+                        {formatCurrency(order.shippingMethod?.price || order.shippingPrice || 0)}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -353,7 +438,7 @@ const OrderDetailPage = () => {
                       fontWeight={600}
                       color="primary"
                     >
-                      ₹{order.total.toFixed(2)}
+                      {formatCurrency(order.total || order.totalPrice || 0)}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -367,17 +452,18 @@ const OrderDetailPage = () => {
                 </Typography>
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body1" fontWeight={500}>
-                    {order.shippingInfo.name}
+                    {order.shippingInfo?.name || order.shippingAddress?.name || 'N/A'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {order.shippingInfo.phone}
+                    {order.shippingInfo?.phone || order.shippingAddress?.phone || 'N/A'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {order.shippingInfo.address}
+                    {order.shippingInfo?.address || order.shippingAddress?.address || 'N/A'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {order.shippingInfo.city}, {order.shippingInfo.state} -{" "}
-                    {order.shippingInfo.pincode}
+                    {order.shippingInfo?.city || order.shippingAddress?.city || 'N/A'}, 
+                    {order.shippingInfo?.state || order.shippingAddress?.state || 'N/A'} - 
+                    {order.shippingInfo?.pincode || order.shippingAddress?.pincode || 'N/A'}
                   </Typography>
                 </Box>
                 <Box sx={{ mt: 3 }}>
@@ -390,8 +476,7 @@ const OrderDetailPage = () => {
                       sx={{ mr: 1, color: "primary.main" }}
                     />
                     <Typography variant="body2">
-                      {order.shippingMethod.name} - ₹
-                      {order.shippingMethod.price.toFixed(2)}
+                      {order.shippingMethod?.name || 'Standard Shipping'} - {formatCurrency(order.shippingMethod?.price || 0)}
                     </Typography>
                   </Box>
                 </Box>
@@ -409,7 +494,7 @@ const OrderDetailPage = () => {
                     sx={{ mr: 1, color: "primary.main" }}
                   />
                   <Typography variant="body2">
-                    {getPaymentMethodLabel(order.paymentMethod)}
+                    {getPaymentMethodLabel(order.paymentMethod || 'cod')}
                   </Typography>
                 </Box>
               </Paper>

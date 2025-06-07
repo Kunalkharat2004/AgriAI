@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Fertilizer = () => {
+const Weather = () => {
     const [loading, setLoading] = useState(true);
 
     const handleIframeLoad = () => {
@@ -28,7 +28,7 @@ const Fertilizer = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-fertilizer-recommendation-usage.hf.space/"
+                src="https://rajkhanke-weather-forecast-farmers.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
@@ -37,4 +37,4 @@ const Fertilizer = () => {
     );
 };
 
-export default Fertilizer;
+export default Weather;

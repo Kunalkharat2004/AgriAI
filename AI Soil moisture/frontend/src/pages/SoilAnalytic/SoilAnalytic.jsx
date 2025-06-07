@@ -2,24 +2,27 @@ import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import SideBar from "./Sidebar";
-import SoilReport from "./SideNavs/SoilReport";
 import UserSoilReport from "./SideNavs/UserSoilReport";
+import Schemes from "./SideNavs/SoilReport";
+import Education from "./SideNavs/Education";
 
-const SoilAnalytic = () => {
+const FinancialSupport = () => {
 	// State to track the currently selected component
-	const [activeComponent, setActiveComponent] = useState("SoilReport");
+	const [activeComponent, setActiveComponent] = useState("Schemes");
 	const [sidebarOpen, setSidebarOpen] = useState(true);
-	const [activeItem, setActiveItem] = useState("SoilReport"); 
+	const [activeItem, setActiveItem] = useState("Schemes"); 
 
 	// Function to render the component based on the selected item
 	const renderActiveComponent = () => {
 		switch (activeComponent) {
-			case "SoilReport":
-				return <SoilReport />;
-			case "UserSoilReport":
+			case "Schemes":
+				return <Schemes />;
+			case "Loan":
 				return <UserSoilReport />;
+			case "Education":
+				return <Education />;
 			default:
-				return <SoilReport />;
+				return <Schemes />;
 		}
 	};
 
@@ -56,4 +59,4 @@ const SoilAnalytic = () => {
 	);
 };
 
-export default SoilAnalytic;
+export default FinancialSupport;

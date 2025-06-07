@@ -33,87 +33,87 @@ export default function SideBar({
 			<List>
 				<ListItem
 					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "WaterRequirement" ? "bg-blue-100 dark:bg-gray-700" : ""
+						activeItem === "SoilReport" ? "bg-blue-100 dark:bg-gray-700" : ""
 					}`}
 					onClick={() => {
-						setActiveComponent("WaterRequirement");
-						setActiveItem("WaterRequirement");
+						setActiveComponent("SoilReport");
+						setActiveItem("SoilReport");
 					}}
 				>
 					<ListItemPrefix>
 						<GiWateringCan className="h-6 w-6 text-green-600 dark:text-green-400" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
-						Water Requirement
+						User Soil Report
 					</span>
 				</ListItem>
 				<ListItem
 					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "PumpStatus"
+						activeItem === "SoilReportByLocation"
 							? "bg-blue-100 dark:bg-gray-700"
 							: ""
 					}`}
 					onClick={() => {
-						setActiveComponent("PumpStatus");
-						setActiveItem("PumpStatus");
+						setActiveComponent("SoilReportByLocation");
+						setActiveItem("SoilReportByLocation");
 					}}
 				>
 					<ListItemPrefix>
 						<MdWaterDrop className="h-6 w-6 text-blue-500 dark:text-blue-300" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
-						Pump Status
+					Soil Report By Location
 					</span>
 				</ListItem>
 
 				<ListItem
 					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "Weather" ? "bg-blue-100 dark:bg-gray-700" : ""
+						activeItem === "SoilAnalytic" ? "bg-blue-100 dark:bg-gray-700" : ""
 					}`}
 					onClick={() => {
-						setActiveComponent("Weather");
-						setActiveItem("Weather");
+						setActiveComponent("SoilAnalytic");
+						setActiveItem("SoilAnalytic");
 					}}
 				>
 					<ListItemPrefix>
 						<GiFarmer className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
-						Weather
+					Fertilizer
 					</span>
 				</ListItem>
 
 				<ListItem
 					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "Intrusion" ? "bg-blue-100 dark:bg-gray-700" : ""
+						activeItem === "CropRecommandation" ? "bg-blue-100 dark:bg-gray-700" : ""
 					}`}
 					onClick={() => {
-						setActiveComponent("Intrusion");
-						setActiveItem("Intrusion");
+						setActiveComponent("CropRecommandation");
+						setActiveItem("CropRecommandation");
 					}}
 				>
 					<ListItemPrefix>
 						<MdOutlineSecurity className="h-6 w-6 text-red-600 dark:text-red-400" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
-						Intrusion
+					Crop by NPK
 					</span>
 				</ListItem>
 
 				<ListItem
 					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "GeoFencing" ? "bg-blue-100 dark:bg-gray-700" : ""
+						activeItem === "CropSoil" ? "bg-blue-100 dark:bg-gray-700" : ""
 					}`}
 					onClick={() => {
-						setActiveComponent("GeoFencing");
-						setActiveItem("GeoFencing");
+						setActiveComponent("CropSoil");
+						setActiveItem("CropSoil");
 					}}
 				>
 					<ListItemPrefix>
 						<FaMapMarkedAlt className="h-6 w-6 text-purple-600 dark:text-purple-400" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
-						Geo Fencing
+						Crop by Soil
 					</span>
 				</ListItem>
 			</List>

@@ -1,7 +1,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
-const CropMarketPriceAnalysis = () => {
+const WarehouseRecommandator = () => {
   const [loading, setLoading] = useState(true);
 
   const handleIframeLoad = () => {
@@ -29,8 +29,7 @@ const CropMarketPriceAnalysis = () => {
         </div>
       )}
       <iframe
-        // src="https://sikeaditya-market-v2.hf.space"
-        src="http://192.168.0.210:7860"
+        src="https://pranit144-marketandstorage.hf.space/storage"
         title=""
         style={{ width: "100%", height: "100%", border: "none" }}
         onLoad={handleIframeLoad}
@@ -39,4 +38,4 @@ const CropMarketPriceAnalysis = () => {
   );
 };
 
-export default CropMarketPriceAnalysis;
+export default WarehouseRecommandator;

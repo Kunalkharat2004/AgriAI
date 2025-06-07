@@ -9,9 +9,10 @@ import {
 import { CircleDollarSign, TrendingUpIcon } from "lucide-react";
 
 const items = [
-    { id: "CropPricePrediction", label: "Crop Price Prediction", icon: CircleDollarSign },
+    { id: "Finding", label: "Agri Market Finder", icon: TrendingUpIcon },
     { id: "CropMarketPriceAnalysis", label: "Market Price Analysis", icon: TrendingUpIcon },
-    { id: "AgriMarketPlanner", label: "Agri Market Planner", icon: TrendingUpIcon },
+    { id: "WarehouseRecommandator", label: "Ware house Recommandor", icon: CircleDollarSign },
+    { id: "PostHarvestPlanner", label: "Post Harvest Planner", icon: CircleDollarSign },
 ];
 
 export default function SideBar({

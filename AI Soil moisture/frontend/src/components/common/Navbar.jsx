@@ -27,18 +27,16 @@ import useTokenStore from "../../store/useTokenStore";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { useCart } from "../../context/CartContext";
 import { isUserAdmin } from "../../services/userService";
+import { HomeIcon } from "lucide-react";
 
 const pages = [
-  { name: "Home", path: "/home" },
+  { name: <HomeIcon />, path: "/home" },
   { name: "Disease Detector", path: "/plant-disease-detector" },
-  { name: "Weather & Geo", path: "/weather-and-geofencing" },
-  { name: "Soil Check", path: "/soil-analytic" },
-  { name: "Fertilizer & Water", path: "/fertilizer-irrigation" },
+  { name: "Market Analyzer", path: "/cropMarketTrendAnalyzer" },
+  { name: "Financial Support", path: "/scheme-market" },
+  { name: "Farm Monitoring", path: "/farm-monitoring" },
+  // { name: "Soil Recommandation", path: "/soil-recommandation" },
   { name: "Shop", path: "/shop" },
-  // { name: "Info", path: "/info" },
-  // { name: "About", path: "/about" },
-  // { name: "Contact", path: "/contact" },
-  // { name: "Feedback", path: "/users/:id/feedback" },
 ];
 
 const settings = ["My Orders", "Contact", "About", "Logout"];

@@ -75,7 +75,8 @@ const OrdersPage = () => {
     try {
       setLoading(true);
       const response = await getUserOrders();
-      setOrders(response.data || []);
+      console.log("Orders response:", response);
+      setOrders(response?.data || []);
       setError(null);
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -221,10 +222,12 @@ const OrdersPage = () => {
                   </TableCell>
                   <TableCell>{formatDate(order.createdAt)}</TableCell>
                   <TableCell>
-                    {order.items.length} item
-                    {order.items.length !== 1 ? "s" : ""}
+                    {order.orderItems?.length || order.items?.length || 0} item
+                    {(order.orderItems?.length !== 1 && order.items?.length !== 1) ? "s" : ""}
                   </TableCell>
-                  <TableCell>₹{order.total.toFixed(2)}</TableCell>
+                  <TableCell>
+                    ₹{(order.totalPrice || order.total || 0).toFixed(2)}
+                  </TableCell>
                   <TableCell>
                     <Chip
                       label={

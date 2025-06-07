@@ -8,7 +8,7 @@ const CardData = [
       title: "featuresCard.title1",
       description:"featuresCard.description1",
       image: cropGif,
-      path:"/cropRecommendation"
+      path:"/soil-recommandation"
 
     },
     {

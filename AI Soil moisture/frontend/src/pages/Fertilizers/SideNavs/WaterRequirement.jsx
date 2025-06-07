@@ -28,7 +28,7 @@ const WaterRequirement = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-irrigation-water-requirement-prediction.hf.space/"
+                src="https://rajkhanke007-irrigation-water-requirement-prediction.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}

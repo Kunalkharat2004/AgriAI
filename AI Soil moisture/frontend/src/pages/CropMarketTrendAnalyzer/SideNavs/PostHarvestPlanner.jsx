@@ -1,7 +1,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
-const AgriMarketPlanner = () => {
+const PostHarvestPlanner = () => {
   const [loading, setLoading] = useState(true);
 
   const handleIframeLoad = () => {
@@ -29,7 +29,7 @@ const AgriMarketPlanner = () => {
         </div>
       )}
       <iframe
-        src="https://rajkhanke-ai-driven-agri-market-planner.hf.space/"
+        src="https://rajkhanke-post-harvest-storage-management-system.hf.space/"
         title=""
         style={{ width: "100%", height: "100%", border: "none" }}
         onLoad={handleIframeLoad}
@@ -38,4 +38,4 @@ const AgriMarketPlanner = () => {
   );
 };
 
-export default AgriMarketPlanner;
+export default PostHarvestPlanner;

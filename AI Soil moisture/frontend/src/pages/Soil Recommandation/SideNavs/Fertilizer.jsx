@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Schemes = () => {
+const SoilAnalytic = () => {
     const [loading, setLoading] = useState(true);
 
     const handleIframeLoad = () => {
@@ -28,7 +28,7 @@ const Schemes = () => {
                 </div>
             )}
             <iframe
-                src="https://sikeaditya-agri-schemes.hf.space"
+                src="https://rajkhanke007-fertilizer-recommendation-usage.hf.space/"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
@@ -37,4 +37,4 @@ const Schemes = () => {
     );
 };
 
-export default Schemes;
+export default SoilAnalytic;

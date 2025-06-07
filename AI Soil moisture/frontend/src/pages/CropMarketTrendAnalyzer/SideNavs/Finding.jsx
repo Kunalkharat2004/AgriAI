@@ -1,7 +1,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
-const CropPricePrediction = () => {
+const Finding = () => {
 	const [loading, setLoading] = useState(true);
    
 	const handleIframeLoad = () => {
@@ -29,7 +29,7 @@ const CropPricePrediction = () => {
 				</div>
 			)}
 			<iframe
-				src="https://rajkhanke007-crop-price-prediction.hf.space/"
+				src="https://rajkhanke-ai-driven-agri-market-planner.hf.space/"
 				title=""
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}
@@ -38,4 +38,4 @@ const CropPricePrediction = () => {
 	);
 };
 
-export default CropPricePrediction;
+export default Finding;

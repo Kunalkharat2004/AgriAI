@@ -5,24 +5,31 @@ import SideBar from "./Sidebar";
 import PumpStatus from "./SideNavs/PumpStatus";
 import WaterRequirement from "./SideNavs/WaterRequirement";
 import Fertilizer from "./SideNavs/Fertilizer";
+import Weather from "./SideNavs/Fertilizer";
+import Intrusion from "./SideNavs/Intrusion";
+import GeoFencing from "../WeatherGeoFencing/SideNavs/GeoFencing";
 
-const FertilizersPage = () => {
+const FarmMonitoring = () => {
 	// State to track the currently selected component
-	const [activeComponent, setActiveComponent] = useState("PumpStatus");
+	const [activeComponent, setActiveComponent] = useState("WaterRequirement");
 	const [sidebarOpen, setSidebarOpen] = useState(true);
-	const [activeItem, setActiveItem] = useState("PumpStatus"); 
+	const [activeItem, setActiveItem] = useState("WaterRequirement"); 
 
 	// Function to render the component based on the selected item
 	const renderActiveComponent = () => {
 		switch (activeComponent) {
-			case "PumpStatus":
-				return <PumpStatus />;
 			case "WaterRequirement":
 				return <WaterRequirement />;
-			case "Fertilizer":
-				return <Fertilizer />;
-			default:
+			case "PumpStatus":
 				return <PumpStatus />;
+			case "Weather":
+				return <Weather />;
+			case "Intrusion":
+				return <Intrusion />;
+			case "GeoFencing":
+				return <GeoFencing />;
+			default:
+				return <WaterRequirement />;
 		}
 	};
 
@@ -59,4 +66,4 @@ const FertilizersPage = () => {
 	);
 };
 
-export default FertilizersPage;
+export default FarmMonitoring;

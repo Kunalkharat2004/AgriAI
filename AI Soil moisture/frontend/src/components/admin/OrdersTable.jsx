@@ -45,6 +45,74 @@ const getStatusColor = (status) => {
   }
 };
 
+// Before the OrdersTable component, add a helper function to handle order items
+const getOrderItems = (order) => {
+  // Handle different property names for order items
+  return order.orderItems || order.items || [];
+};
+
+// Improve the calculateOrderTotals function
+const calculateOrderTotals = (order) => {
+  if (!order) return { subtotal: 0, shipping: 0, total: 0 };
+  
+  const items = order.orderItems || order.items || [];
+  const subtotal = items.reduce(
+    (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
+    0
+  );
+  
+  // Parse numeric values to ensure they're numbers
+  const existingSubtotal = typeof order.subTotal === 'number' ? order.subTotal : 
+                         (typeof order.subTotal === 'string' ? parseFloat(order.subTotal) : null);
+  
+  const shippingPrice = typeof order.shippingPrice === 'number' ? order.shippingPrice : 
+                       (typeof order.shippingPrice === 'string' ? parseFloat(order.shippingPrice) : null);
+  
+  const methodPrice = order.shippingMethod?.price;
+  const shippingMethodPrice = typeof methodPrice === 'number' ? methodPrice : 
+                             (typeof methodPrice === 'string' ? parseFloat(methodPrice) : null);
+  
+  // Use existing values if available, otherwise calculate
+  const result = {
+    subtotal: existingSubtotal || subtotal || 0,
+    shipping: shippingPrice || shippingMethodPrice || 0,
+    total: 0 // Will be calculated below
+  };
+  
+  // Calculate total
+  if (typeof order.total === 'number') {
+    result.total = order.total;
+  } else if (typeof order.total === 'string') {
+    result.total = parseFloat(order.total);
+  } else if (typeof order.totalPrice === 'number') {
+    result.total = order.totalPrice;
+  } else if (typeof order.totalPrice === 'string') {
+    result.total = parseFloat(order.totalPrice);
+  } else {
+    // If no total provided, calculate it
+    result.total = result.subtotal + result.shipping;
+  }
+  
+  // Ensure all values are valid numbers (not NaN)
+  if (isNaN(result.subtotal)) result.subtotal = 0;
+  if (isNaN(result.shipping)) result.shipping = 0;
+  if (isNaN(result.total)) result.total = 0;
+  
+  return result;
+};
+
+// Add a helper function to safely display order status
+const getSafeStatus = (status) => {
+  return status ? status.toUpperCase() : "PENDING";
+};
+
+// Add a helper function for currency formatting
+const formatCurrency = (amount) => {
+  // Ensure the amount is a valid number
+  const safeAmount = Number(amount) || 0;
+  return `₹${safeAmount.toFixed(2)}`;
+};
+
 const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
   const theme = useTheme();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -127,8 +195,8 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
             Current status:{" "}
             <Chip
               size="small"
-              label={selectedOrder.status.toUpperCase()}
-              color={getStatusColor(selectedOrder.status)}
+              label={getSafeStatus(selectedOrder.status)}
+              color={getStatusColor(selectedOrder.status || "pending")}
             />
           </Typography>
           <Typography variant="body2" gutterBottom>
@@ -197,8 +265,8 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                 <strong>Status:</strong>{" "}
                 <Chip
                   size="small"
-                  label={selectedOrder.status.toUpperCase()}
-                  color={getStatusColor(selectedOrder.status)}
+                  label={getSafeStatus(selectedOrder.status)}
+                  color={getStatusColor(selectedOrder.status || "pending")}
                 />
               </Typography>
               <Typography variant="body2">
@@ -223,26 +291,25 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
               }}
             >
               <Typography variant="body2">
-                <strong>Name:</strong> {selectedOrder.shippingInfo?.firstName}{" "}
-                {selectedOrder.shippingInfo?.lastName}
+                <strong>Name:</strong> {selectedOrder.shippingInfo?.name || selectedOrder.shippingAddress?.name || 'N/A'}
               </Typography>
               <Typography variant="body2">
-                <strong>Address:</strong> {selectedOrder.shippingInfo?.address}
+                <strong>Address:</strong> {selectedOrder.shippingInfo?.address || selectedOrder.shippingAddress?.address || 'N/A'}
               </Typography>
               <Typography variant="body2">
-                <strong>City:</strong> {selectedOrder.shippingInfo?.city}
+                <strong>City:</strong> {selectedOrder.shippingInfo?.city || selectedOrder.shippingAddress?.city || 'N/A'}
               </Typography>
               <Typography variant="body2">
-                <strong>State:</strong> {selectedOrder.shippingInfo?.state}
+                <strong>State:</strong> {selectedOrder.shippingInfo?.state || selectedOrder.shippingAddress?.state || 'N/A'}
               </Typography>
               <Typography variant="body2">
-                <strong>Zip:</strong> {selectedOrder.shippingInfo?.zipCode}
+                <strong>Zip:</strong> {selectedOrder.shippingInfo?.pincode || selectedOrder.shippingAddress?.pincode || selectedOrder.shippingInfo?.zipCode || 'N/A'}
               </Typography>
               <Typography variant="body2">
-                <strong>Country:</strong> {selectedOrder.shippingInfo?.country}
+                <strong>Country:</strong> {selectedOrder.shippingInfo?.country || 'India'}
               </Typography>
               <Typography variant="body2">
-                <strong>Phone:</strong> {selectedOrder.shippingInfo?.phone}
+                <strong>Phone:</strong> {selectedOrder.shippingInfo?.phone || selectedOrder.shippingAddress?.phone || 'N/A'}
               </Typography>
               <Typography variant="body2">
                 <strong>Shipping Method:</strong>{" "}
@@ -260,59 +327,51 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Product</TableCell>
-                    <TableCell align="right">Price</TableCell>
                     <TableCell align="right">Quantity</TableCell>
+                    <TableCell align="right">Price</TableCell>
                     <TableCell align="right">Total</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedOrder.items.map((item, index) => (
+                  {getOrderItems(selectedOrder).map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>{item.name}</TableCell>
                       <TableCell align="right">
-                        ${item.price.toFixed(2)}
+                        {item.quantity}
                       </TableCell>
-                      <TableCell align="right">{item.quantity}</TableCell>
                       <TableCell align="right">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatCurrency(item.price || 0)}
+                      </TableCell>
+                      <TableCell align="right">
+                        {formatCurrency((item.price || 0) * (item.quantity || 1))}
                       </TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={2} />
-                    <TableCell>
-                      <Typography variant="subtitle2">Subtotal</Typography>
-                    </TableCell>
+                    <TableCell colSpan={3}>Subtotal</TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle2">
-                        ${selectedOrder.subTotal.toFixed(2)}
+                        {formatCurrency(calculateOrderTotals(selectedOrder).subtotal)}
                       </Typography>
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={2} />
-                    <TableCell>
-                      <Typography variant="subtitle2">Shipping</Typography>
-                    </TableCell>
+                    <TableCell colSpan={3}>Shipping</TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle2">
-                        $
-                        {(selectedOrder.total - selectedOrder.subTotal).toFixed(
-                          2
-                        )}
+                        {formatCurrency(calculateOrderTotals(selectedOrder).shipping)}
                       </Typography>
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={2} />
-                    <TableCell>
-                      <Typography variant="subtitle2" fontWeight="bold">
+                    <TableCell colSpan={3}>
+                      <Typography variant="subtitle1" fontWeight="bold">
                         Total
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle2" fontWeight="bold">
-                        ${selectedOrder.total.toFixed(2)}
+                        {formatCurrency(calculateOrderTotals(selectedOrder).total)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -375,11 +434,13 @@ const OrdersTable = ({ orders, pagination, onPageChange, onStatusUpdate }) => {
                 <TableCell>{order.orderNumber}</TableCell>
                 <TableCell>{formatDate(order.createdAt)}</TableCell>
                 <TableCell>{order.user?.email || "N/A"}</TableCell>
-                <TableCell align="right">${order.total.toFixed(2)}</TableCell>
+                <TableCell align="right">
+                  {formatCurrency(order.total || order.totalPrice || 0)}
+                </TableCell>
                 <TableCell>
                   <Chip
-                    label={order.status.toUpperCase()}
-                    color={getStatusColor(order.status)}
+                    label={getSafeStatus(order.status)}
+                    color={getStatusColor(order.status || "pending")}
                     size="small"
                   />
                 </TableCell>

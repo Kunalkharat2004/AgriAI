@@ -41,6 +41,9 @@ import CartPage from "./pages/Shop/CartPage";
 import OrdersPage from "./pages/Shop/OrdersPage";
 import OrderDetailPage from "./pages/Shop/OrderDetailPage";
 import AdminDashboard from "./pages/Admin/Dashboard";
+import FinancialSupport from "./pages/SoilAnalytic/SoilAnalytic.jsx";
+import FarmMonitoring from "./pages/Fertilizers/FertilizersPage.jsx";
+import SoilRecommandation from "./pages/Soil Recommandation/SoilRecommandation.jsx";
 // import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 
 const queryClient = new QueryClient();
@@ -53,8 +56,11 @@ const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "/plant-disease-detector", element: <DiseasePage /> }, // done
       { path: "/weather-and-geofencing", element: <WeatherGeoFencing /> }, // done
-      { path: "/soil-analytic", element: <SoilAnalytic /> }, // done
-      { path: "/fertilizer-irrigation", element: <FertilizersPage /> }, // done
+      // { path: "/soil-analytic", element: <SoilAnalytic /> }, // done
+      { path: "/scheme-market", element: <FinancialSupport /> }, // done
+      // { path: "/fertilizer-irrigation", element: <FertilizersPage /> }, // done
+      { path: "/farm-monitoring", element: <FarmMonitoring /> }, // done
+      { path: "/soil-recommandation", element: <SoilRecommandation /> }, // done
       { path: "waterNeedAnalysis/result", element: <IrrigationWaterReq /> }, // done
       { path: "pumpAndIrrigationStatus", element: <PumpAndIrrigationStatus /> }, // done
       { path: "info", element: <Info /> },

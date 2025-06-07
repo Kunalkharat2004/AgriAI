@@ -87,30 +87,39 @@ export const getAllOrders = async (page = 1, limit = 10, status = "all") => {
 
 // Update order status
 export const updateOrderStatus = async (orderId, status) => {
+  console.log(`Updating order status: ID=${orderId}, new status=${status}`);
   try {
-    const baseUrl = API_URL.endsWith("/api") ? API_URL : `${API_URL}/api`;
+    const baseUrl = API_URL.endsWith("/api") ? API_URL : `${API_URL}/api`;  
+    const url = `${baseUrl}/orders/admin/${orderId}/status`;
+    console.log(`Sending request to: ${url}`);
+    
+    // Get auth headers
+    const authHeader = getAuthHeader();
+    console.log("Auth header present:", !!authHeader.headers.Authorization);
+    
     const response = await axios.patch(
-      `${baseUrl}/orders/admin/${orderId}/status`,
+      url,
       { status },
-      getAuthHeader()
+      authHeader
     );
 
+    console.log("Update status response:", response.status, response.data);
     return {
       status: "success",
-      data: response.data.data,
+      data: response.data
     };
   } catch (error) {
-    console.error(
-      "Update order status error:",
-      error.response?.data || error.message
-    );
+    console.error("Update order status error:", error);
+    console.error("Error details:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    
     return {
       status: "error",
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to update order",
-      data: null,
+      message: error.response?.data?.message || "Failed to update order status",
+      error: error
     };
   }
 };

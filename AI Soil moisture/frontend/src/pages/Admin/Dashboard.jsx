@@ -215,7 +215,7 @@ const Dashboard = () => {
     labels: salesData.labels,
     datasets: [
       {
-        label: "Sales ($)",
+        label: "Sales (₹)",
         data: salesData.sales,
         borderColor: theme.palette.primary.main,
         backgroundColor: theme.palette.primary.light + "80",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Schemes = () => {
+const PumpStatus = () => {
     const [loading, setLoading] = useState(true);
 
     const handleIframeLoad = () => {
@@ -28,8 +28,8 @@ const Schemes = () => {
                 </div>
             )}
             <iframe
-                src="https://sikeaditya-agri-schemes.hf.space"
-                title="Crop Disease Detection"
+                src="https://rajkhanke007-irrigation-pump-status.hf.space/"
+                title="Geo Fencing"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
             />
@@ -37,4 +37,4 @@ const Schemes = () => {
     );
 };
 
-export default Schemes;
+export default PumpStatus;

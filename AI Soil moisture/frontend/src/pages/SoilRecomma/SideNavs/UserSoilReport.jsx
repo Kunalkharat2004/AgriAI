@@ -28,7 +28,7 @@ const Loan = () => {
 				</div>
 			)}
 			<iframe
-				src="https://rajkhanke-farmers-loan-recommendation-system.hf.space"
+				src="https://rajkhanke-farmers-loan-recommendation-system.hf.space/"
 				title="Crop Disease Detection"
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}

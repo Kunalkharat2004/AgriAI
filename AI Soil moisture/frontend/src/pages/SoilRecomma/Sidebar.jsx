@@ -6,8 +6,9 @@ import {
 	ListItem,
 	ListItemPrefix,
 } from "@material-tailwind/react";
-import { FaTractor } from "react-icons/fa";
-import { GiReceiveMoney, GiBookshelf } from "react-icons/gi";
+import { WiDayCloudy } from "react-icons/wi";
+import { FaDrawPolygon } from "react-icons/fa";
+import { MdSecurity } from "react-icons/md";
 
 export default function SideBar({
 	setActiveComponent,
@@ -42,7 +43,7 @@ export default function SideBar({
 					}}
 				>
 					<ListItemPrefix>
-						<FaTractor className="h-6 w-6 text-yellow-500 dark:text-yellow-300" />
+						<WiDayCloudy className="h-6 w-6 text-yellow-500 dark:text-yellow-300" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
 						Government Schemes
@@ -51,35 +52,18 @@ export default function SideBar({
 
 				<ListItem
 					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "Loan" ? "bg-blue-100 dark:bg-gray-700" : ""
+						activeItem === "UserSoilReport" ? "bg-blue-100 dark:bg-gray-700" : ""
 					}`}
 					onClick={() => {
-						setActiveComponent("Loan");
-						setActiveItem("Loan");
+						setActiveComponent("UserSoilReport");
+						setActiveItem("UserSoilReport");
 					}}
 				>
 					<ListItemPrefix>
-						<GiReceiveMoney className="h-5 w-5 text-green-600 dark:text-green-400" />
+						<FaDrawPolygon className="h-5 w-5 text-green-600 dark:text-green-400" />
 					</ListItemPrefix>
 					<span className="text-blue-gray-900 dark:text-gray-300">
 						Loans
-					</span>
-				</ListItem>
-
-				<ListItem
-					className={`hover:bg-blue-gray-100 dark:hover:bg-gray-700 ${
-						activeItem === "Education" ? "bg-blue-100 dark:bg-gray-700" : ""
-					}`}
-					onClick={() => {
-						setActiveComponent("Education");
-						setActiveItem("Education");
-					}}
-				>
-					<ListItemPrefix>
-						<GiBookshelf className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-					</ListItemPrefix>
-					<span className="text-blue-gray-900 dark:text-gray-300">
-						Farmer Education
 					</span>
 				</ListItem>
 			</List>

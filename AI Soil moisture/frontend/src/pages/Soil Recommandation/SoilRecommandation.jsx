@@ -2,31 +2,37 @@ import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import SideBar from "./Sidebar";
-import CropMarketPriceAnalysis from "./SideNavs/CropMarketPriceAnalysis";
-import Finding from "./SideNavs/Finding";
-import WarehouseRecommandator from "./SideNavs/WarehouseRecommandator";
-import PostHarvestPlanner from "./SideNavs/PostHarvestPlanner";
+import PumpStatus from "./SideNavs/PumpStatus";
+import WaterRequirement from "./SideNavs/SoilReport";
+import Fertilizer from "./SideNavs/Fertilizer";
+import Weather from "./SideNavs/Fertilizer";
+import Intrusion from "./SideNavs/Intrusion";
+import GeoFencing from "../WeatherGeoFencing/SideNavs/GeoFencing";
+import SoilReport from "./SideNavs/SoilReport";
+import SoilReportByLocation from "./SideNavs/SoilReportByLocation";
+import SoilAnalytic from "./SideNavs/Fertilizer";
 
-
-const CropMarketTrendAnalyzerPage = () => {
+const SoilRecommandation = () => {
 	// State to track the currently selected component
-	const [activeComponent, setActiveComponent] = useState("Finding");
+	const [activeComponent, setActiveComponent] = useState("SoilReport");
 	const [sidebarOpen, setSidebarOpen] = useState(true);
-	const [activeItem, setActiveItem] = useState("Finding"); // State to track active item
+	const [activeItem, setActiveItem] = useState("SoilReport"); 
 
 	// Function to render the component based on the selected item
 	const renderActiveComponent = () => {
 		switch (activeComponent) {
-			case "Finding":
-				return <Finding />;
-			case "CropMarketPriceAnalysis":
-				return <CropMarketPriceAnalysis />;
-			case "WarehouseRecommandator":
-				return <WarehouseRecommandator />;
-			case "PostHarvestPlanner":
-				return <PostHarvestPlanner />;
+			case "SoilReport":
+				return <SoilReport />;
+			case "SoilReportByLocation":
+				return <SoilReportByLocation />;
+			case "SoilAnalytic":
+				return <SoilAnalytic />;
+			case "CropRecommandation":
+				return <Intrusion />;
+			case "CropSoil":
+				return <GeoFencing />;
 			default:
-				return <Finding />;
+				return <SoilReport />;
 		}
 	};
 
@@ -63,4 +69,4 @@ const CropMarketTrendAnalyzerPage = () => {
 	);
 };
 
-export default CropMarketTrendAnalyzerPage;
+export default SoilRecommandation;
