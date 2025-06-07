@@ -24,7 +24,7 @@ export const authentication = (
     }
 
     // Verify token
-    const decoded = jwt.verify(token, config.jwtSecret);
+    const decoded = jwt.verify(token, config.jwtSecret!);
 
     // Add user info to request
     (req as AuthRequest).user = decoded;
