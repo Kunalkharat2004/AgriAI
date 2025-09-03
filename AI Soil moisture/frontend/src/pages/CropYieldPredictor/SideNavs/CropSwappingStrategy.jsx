@@ -29,7 +29,7 @@ const CropSwappingStrategy = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke-crop-revenue-analyzer.hf.space/"
+                src="https://pranit144-crop-revenue-analyzer.hf.space/"
                 title=""
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}

@@ -29,7 +29,7 @@ const PostHarvestPlanner = () => {
         </div>
       )}
       <iframe
-        src="https://rajkhanke-post-harvest-storage-management-system.hf.space/"
+        src="https://pranit144-post-harvest-storage-management-system.hf.space/"
         title=""
         style={{ width: "100%", height: "100%", border: "none" }}
         onLoad={handleIframeLoad}

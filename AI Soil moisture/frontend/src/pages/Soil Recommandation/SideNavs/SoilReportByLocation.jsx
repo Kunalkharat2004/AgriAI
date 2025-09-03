@@ -28,7 +28,7 @@ const SoilReportByLocation = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke-soil-analysis-dashboard.hf.space/"
+                src="https://pranit144-soil-analysis-dashboard.hf.space/"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}

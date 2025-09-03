@@ -28,7 +28,7 @@ const Intrusion = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-crop-recommendation-system-npk.hf.space/"
+                src="https://pranit144-crop-recommendation-system-npk.hf.space/"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}

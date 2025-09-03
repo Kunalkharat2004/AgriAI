@@ -28,7 +28,7 @@ const SoilAnalytic = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-fertilizer-recommendation-usage.hf.space/"
+                src="https://pranit144-fertilizer-recommendation-usage.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}

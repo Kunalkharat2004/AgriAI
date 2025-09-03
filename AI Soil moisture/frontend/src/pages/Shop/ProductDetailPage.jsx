@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -33,7 +33,6 @@ import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import agricultureProducts from "../../data/agricultureProducts";
 import { useCart } from "../../context/CartContext";
 import RecommendedProducts from "../../components/shop/RecommendedProducts";
-import { getProductImageUrl } from "../../utils/imageUtils";
 
 const ProductDetailPage = () => {
   const { productId } = useParams();

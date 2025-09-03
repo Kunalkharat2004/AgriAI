@@ -29,7 +29,7 @@ const GeoSpatialCropAnalysis = () => {
 				</div>
 			)}
 			<iframe
-				src="https://rajkhanke007-crop-geospatial-analysis.hf.space/crop_analysis"
+				src="https://pranit144-crop-geospatial-analysisgytgy.hf.space"
 				title=""
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}

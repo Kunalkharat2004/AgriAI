@@ -29,8 +29,7 @@ const CropMarketPriceAnalysis = () => {
         </div>
       )}
       <iframe
-        // src="https://sikeaditya-market-v2.hf.space"
-        src="http://192.168.0.210:7860"
+        src="https://pranit144-market-v2.hf.space/"
         title=""
         style={{ width: "100%", height: "100%", border: "none" }}
         onLoad={handleIframeLoad}

@@ -29,7 +29,7 @@ const CropRecommendationOne = () => {
 				</div>
 			)}
 			<iframe
-				src="https://rajkhanke007-crop-recommendation-system-npk.hf.space/"
+				src="https://pranit144-crop-recommendation-system-npk.hf.space/"
 				title=""
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}
