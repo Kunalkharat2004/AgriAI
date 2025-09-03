@@ -70,7 +70,8 @@ export default function SignUp() {
 			});
 			return;
 		}
-		mutation.mutate({ email, password, firstName, lastName });
+		const name = `${firstName} ${lastName}`;
+		mutation.mutate({ email, password, name});
 	};
 
 	return (
