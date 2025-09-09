@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FaChevronUp, FaPaperPlane, FaRobot } from "react-icons/fa";
+import { FaChevronUp, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
 import {
   MdClear,
   MdMic,
@@ -12,18 +12,81 @@ import {
 
 const ChatBot = () => {
   const API_KEY = import.meta.env.VITE_API_KEY;
-  const INTRO_WORDS = ["hi", "hello", "hey", "greetings"];
+  
+  // Language configurations
+  const LANGUAGES = {
+    en: {
+      name: "English",
+      code: "en-US",
+      speechCode: "en-US",
+      introWords: ["hi", "hello", "hey", "greetings"],
+      initialMessage: "Hello, This is AgriBot! Ask me anything about farming and agriculture!",
+      welcomeResponse: "Hello! Welcome to AgriBot! How can I assist you with farming today?",
+      placeholderText: "Type your message...",
+      listeningText: "Listening...",
+      errorMessages: {
+        apiKey: "API key is missing. Please configure your API key.",
+        general: "Sorry, I encountered an error. Please try again later.",
+        connection: "An error occurred while connecting to the server. Please try again later.",
+        processing: "I'm having trouble processing your request. Please try again."
+      }
+    },
+    mr: {
+      name: "मराठी",
+      code: "mr-IN",
+      speechCode: "hi-IN", // Fallback to Hindi for TTS as Marathi might not be available
+      introWords: ["नमस्कार", "हाय", "हॅलो"],
+      initialMessage: "नमस्कार, हा AgriBot आहे! शेतीकरी आणि कृषी संबंधित काहीही विचारा!",
+      welcomeResponse: "नमस्कार! AgriBot मध्ये आपले स्वागत आहे! आज मी शेतीकरीबद्दल कशी मदत करू शकतो?",
+      placeholderText: "आपला संदेश टाइप करा...",
+      listeningText: "ऐकत आहे...",
+      errorMessages: {
+        apiKey: "API की गहाळ आहे. कृपया आपली API की कॉन्फिगर करा.",
+        general: "माफ करा, मला एक त्रुटी आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
+        connection: "सर्व्हरशी कनेक्ट होताना त्रुटी आली. कृपया नंतर पुन्हा प्रयत्न करा.",
+        processing: "मला आपली विनंती प्रक्रिया करण्यात अडचण येत आहे. कृपया पुन्हा प्रयत्न करा."
+      }
+    },
+    hi: {
+      name: "हिंदी",
+      code: "hi-IN",
+      speechCode: "hi-IN",
+      introWords: ["नमस्ते", "हाय", "हॅलो", "नमस्कार"],
+      initialMessage: "नमस्ते, यह AgriBot है! खेती और कृषि के बारे में कुछ भी पूछें!",
+      welcomeResponse: "नमस्ते! AgriBot में आपका स्वागत है! आज मैं खेती के बारे में आपकी कैसे सहायता कर सकता हूं?",
+      placeholderText: "अपना संदेश टाइप करें...",
+      listeningText: "सुन रहा हूं...",
+      errorMessages: {
+        apiKey: "API कुंजी गायब है. कृपया अपनी API कुंजी कॉन्फ़िगर करें.",
+        general: "खुशी, मुझे एक त्रुटि आई है. कृपया बाद में पुन: प्रयास करें.",
+        connection: "सर्वर से कनेक्ट करने में त्रुटि हुई. कृपया बाद में पुन: प्रयास करें.",
+        processing: "मुझे आपका अनुरोध प्रोसेस करने में कठिनाई हो रही है. कृपया पुन: प्रयास करें."
+      }
+    },
+    ta: {
+      name: "தமிழ்",
+      code: "ta-IN",
+      speechCode: "hi-IN", // Fallback to Hindi for TTS as Tamil might not be available
+      introWords: ["வணக்கம்", "ஹாய்", "ஹலோ"],
+      initialMessage: "வணக்கம், இது AgriBot! விவசாயம் மற்றும் வேளாண்மை பற்றி எதையும் கேளுங்கள்!",
+      welcomeResponse: "வணக்கம்! AgriBot இல் உங்களை வரவேற்கிறோம்! இன்று விவசாயத்தில் நான் எப்படி உதவ முடியும்?",
+      placeholderText: "உங்கள் செய்தியை டைப் செய்யுங்கள்...",
+      listeningText: "கேட்டுக்கொண்டிருக்கிறேன்...",
+      errorMessages: {
+        apiKey: "API விசை காணவில்லை. தயவுசெய்து உங்கள் API விசையை கட்டமைக்கவும்.",
+        general: "மன்னிக்கவும், எனக்கு ஒரு பிழை ஏற்பட்டது. தயவுசெய்து பிறகு முயற்சிக்கவும்.",
+        connection: "சர்வருடன் இணைக்கும்போது பிழை ஏற்பட்டது. தயவுசெய்து பிறகு முயற்சிக்கவும்.",
+        processing: "உங்கள் கோரிக்கையை செயல்படுத்துவதில் எனக்கு சிரமம் உள்ளது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்."
+      }
+    }
+  };
 
   // State variables
   const [open, setOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      text: "Hello, This is AgriBot! Ask me anything about farming and agriculture!",
-      isBot: true,
-      id: Date.now(),
-    },
-  ]);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -45,6 +108,21 @@ const ChatBot = () => {
   const recognitionRef = useRef(null);
   const inputRef = useRef(null);
   const speechUtteranceRef = useRef(null);
+  const languageDropdownRef = useRef(null);
+
+  // Initialize messages when language changes
+  useEffect(() => {
+    const currentLang = LANGUAGES[selectedLanguage];
+    setMessages([
+      {
+        text: currentLang.initialMessage,
+        isBot: true,
+        id: Date.now(),
+      },
+    ]);
+    // Stop any ongoing speech when language changes
+    stopSpeech();
+  }, [selectedLanguage]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -61,6 +139,9 @@ const ChatBot = () => {
     recognitionRef.current = new SpeechRecognition();
     recognitionRef.current.continuous = false;
     recognitionRef.current.interimResults = true;
+    
+    // Set language for speech recognition
+    recognitionRef.current.lang = LANGUAGES[selectedLanguage].code;
 
     recognitionRef.current.onresult = (event) => {
       const transcriptText = event.results[0][0].transcript;
@@ -81,7 +162,7 @@ const ChatBot = () => {
         recognitionRef.current.stop();
       }
     };
-  }, []);
+  }, [selectedLanguage]);
 
   // Load available voices for speech synthesis
   useEffect(() => {
@@ -124,6 +205,14 @@ const ChatBot = () => {
       ) {
         setOpen(false);
       }
+      
+      // Close language dropdown if clicked outside
+      if (
+        languageDropdownRef.current &&
+        !languageDropdownRef.current.contains(event.target)
+      ) {
+        setShowLanguageDropdown(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -163,9 +252,18 @@ const ChatBot = () => {
       setIsListening(false);
     } else {
       setInputValue("");
+      // Update recognition language
+      recognitionRef.current.lang = LANGUAGES[selectedLanguage].code;
       recognitionRef.current.start();
       setIsListening(true);
     }
+  };
+
+  // Handle language change
+  const handleLanguageChange = (langCode) => {
+    setSelectedLanguage(langCode);
+    setShowLanguageDropdown(false);
+    stopSpeech(); // Stop any ongoing speech
   };
 
   // Stop all speech synthesis
@@ -178,27 +276,29 @@ const ChatBot = () => {
     setIsPaused(false);
   };
 
-  // Get the best female voice available
+  // Get the best voice for selected language
   const getBestVoice = () => {
     if (availableVoices.length === 0) return null;
 
-    // Try to find a female voice
+    const currentLang = LANGUAGES[selectedLanguage];
+    const langCode = currentLang.speechCode;
+
+    // Try to find voice for the specific language
+    const langVoice = availableVoices.find(voice =>
+      voice.lang.startsWith(langCode.split('-')[0])
+    );
+
+    if (langVoice) return langVoice;
+
+    // Try to find a female voice for any language
     const femaleVoice = availableVoices.find(voice =>
       voice.name.toLowerCase().includes('female') ||
       voice.name.toLowerCase().includes('woman') ||
       voice.name.toLowerCase().includes('zira') ||
-      voice.name.toLowerCase().includes('samantha') ||
-      voice.name.toLowerCase().includes('victoria')
+      voice.name.toLowerCase().includes('samantha')
     );
 
-    if (femaleVoice) return femaleVoice;
-
-    // Fallback to any English voice
-    const englishVoice = availableVoices.find(voice =>
-      voice.lang.startsWith('en')
-    );
-
-    return englishVoice || availableVoices[0];
+    return femaleVoice || availableVoices[0];
   };
 
   // Clean text for speech (remove markdown)
@@ -214,7 +314,7 @@ const ChatBot = () => {
   // Split text into manageable chunks
   const createTextChunks = (text) => {
     const maxChunkLength = 200;
-    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentences = text.split(/[.!?।॥]+/).filter(s => s.trim().length > 0);
     const chunks = [];
     let currentChunk = "";
 
@@ -257,6 +357,7 @@ const ChatBot = () => {
     
     utterance.rate = 0.9;
     utterance.volume = 1.0;
+    utterance.lang = LANGUAGES[selectedLanguage].speechCode;
 
     utterance.onstart = () => {
       setIsSpeaking(true);
@@ -352,11 +453,15 @@ const ChatBot = () => {
     // Stop any ongoing speech when new message is sent
     stopSpeech();
 
+    const currentLang = LANGUAGES[selectedLanguage];
+    
     // For intro words, provide an immediate welcome response
-    if (INTRO_WORDS.includes(inputValue.toLowerCase().trim())) {
+    if (currentLang.introWords.some(word => 
+      inputValue.toLowerCase().trim().includes(word.toLowerCase())
+    )) {
       setTimeout(() => {
         const botResponse = {
-          text: "Hello! Welcome to AgriBot! How can I assist you with farming today?",
+          text: currentLang.welcomeResponse,
           isBot: true,
           id: Date.now(),
         };
@@ -371,7 +476,7 @@ const ChatBot = () => {
     } catch (error) {
       console.error("Error processing message:", error);
       const errorMessage = {
-        text: "Sorry, I encountered an error. Please try again later.",
+        text: currentLang.errorMessages.general,
         isBot: true,
         id: Date.now(),
       };
@@ -381,9 +486,11 @@ const ChatBot = () => {
   };
 
   const processMessage = async (userInput) => {
+    const currentLang = LANGUAGES[selectedLanguage];
+    
     if (!API_KEY) {
       const errorMessage = {
-        text: "API key is missing. Please configure your API key.",
+        text: currentLang.errorMessages.apiKey,
         isBot: true,
         id: Date.now(),
       };
@@ -392,8 +499,22 @@ const ChatBot = () => {
       return;
     }
 
+    // Create language-specific system message
+    const getLanguageInstruction = () => {
+      switch (selectedLanguage) {
+        case 'mr':
+          return "You are AgriBot, an AI-powered farming assistant. Respond ONLY in Marathi language. Your job is to provide accurate, context-aware, and professional responses to user queries related to agriculture, crop management, soil health, pest control, weather impact, and sustainable farming practices. Align your responses with modern agricultural guidelines and best practices. IMPORTANT: Always respond in Marathi regardless of the input language. Do not use asterisks (*) or markdown formatting in your responses.";
+        case 'hi':
+          return "You are AgriBot, an AI-powered farming assistant. Respond ONLY in Hindi language. Your job is to provide accurate, context-aware, and professional responses to user queries related to agriculture, crop management, soil health, pest control, weather impact, and sustainable farming practices. Align your responses with modern agricultural guidelines and best practices. IMPORTANT: Always respond in Hindi regardless of the input language. Do not use asterisks (*) or markdown formatting in your responses.";
+        case 'ta':
+          return "You are AgriBot, an AI-powered farming assistant. Respond ONLY in Tamil language. Your job is to provide accurate, context-aware, and professional responses to user queries related to agriculture, crop management, soil health, pest control, weather impact, and sustainable farming practices. Align your responses with modern agricultural guidelines and best practices. IMPORTANT: Always respond in Tamil regardless of the input language. Do not use asterisks (*) or markdown formatting in your responses.";
+        default:
+          return "You are AgriBot, an AI-powered farming assistant. Your job is to provide accurate, context-aware, and professional responses to user queries related to agriculture, crop management, soil health, pest control, weather impact, and sustainable farming practices. Align your responses with modern agricultural guidelines and best practices. IMPORTANT: Do not use asterisks (*) or markdown formatting in your responses.";
+      }
+    };
+
     const systemMessage = {
-      text: "You are AgriBot, an AI-powered farming assistant. Your job is to provide accurate, context-aware, and professional responses to user queries related to agriculture, crop management, soil health, pest control, weather impact, and sustainable farming practices. Align your responses with modern agricultural guidelines and best practices. IMPORTANT: Do not use asterisks (*) or markdown formatting in your responses.",
+      text: getLanguageInstruction(),
     };
 
     // Prepare conversation context
@@ -431,8 +552,7 @@ const ChatBot = () => {
       if (responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
         botResponseText = responseData.candidates[0].content.parts[0].text;
       } else {
-        botResponseText =
-          "I'm having trouble processing your request. Please try again.";
+        botResponseText = currentLang.errorMessages.processing;
       }
 
       const botResponse = {
@@ -445,7 +565,7 @@ const ChatBot = () => {
     } catch (error) {
       console.error("Error processing message:", error);
       const errorMessage = {
-        text: "An error occurred while connecting to the server. Please try again later.",
+        text: currentLang.errorMessages.connection,
         isBot: true,
         id: Date.now(),
       };
@@ -493,6 +613,7 @@ const ChatBot = () => {
   };
 
   const speechButtonProps = getSpeechButtonProps();
+  const currentLang = LANGUAGES[selectedLanguage];
 
   // Render mobile-friendly chatbot
   return (
@@ -584,73 +705,74 @@ const ChatBot = () => {
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <div className="flex items-center">
+          <div className="flex items-center flex-1">
             <div className="bg-white/20 p-2 rounded-full mr-3">
               <FaRobot className="text-white" size={16} />
             </div>
-            <div>
+            <div className="flex-1">
               <span className="font-semibold text-lg">AgriBot</span>
               <div className="text-xs text-blue-100">AI Assistant</div>
             </div>
-          </div>
-          <div className="flex space-x-1">
-            <button
-              onClick={toggleSpeech}
-              className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
-              title={speechButtonProps.title}
-            >
-              {speechButtonProps.icon}
-            </button>
-            <button
-              onClick={toggleListening}
-              className={`p-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30 ${
-                isListening
-                  ? "bg-red-500 hover:bg-red-600"
-                  : "hover:bg-white/20"
-              }`}
-              title={isListening ? "Stop listening" : "Start listening"}
-            >
-              {isListening ? <MdMicOff size={18} /> : <MdMic size={18} />}
-            </button>
+            
+            {/* Language Selector */}
+            <div className="relative" ref={languageDropdownRef}>
+              <button
+                onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
+              >
+                {currentLang.name}
+                <FaChevronDown size={12} />
+              </button>
+              
+              {showLanguageDropdown && (
+                <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 py-2 min-w-32 z-50">
+                  {Object.entries(LANGUAGES).map(([code, lang]) => (
+                    <button
+                      key={code}
+                      onClick={() => handleLanguageChange(code)}
+                      className={`w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors ${
+                        selectedLanguage === code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                      }`}
+                    >
+                      {lang.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Messages container */}
-        <div
-          className="h-64 overflow-y-auto p-4"
-          style={{
-            background: "linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)",
-          }}
-        >
-          {messages.map((msg) => (
+        {/* Chat messages */}
+        <div className="flex-1 p-4 overflow-y-auto custom-scrollbar" style={{ height: 'calc(100% - 112px)' }}>
+          {messages.map((msg, index) => (
             <div
               key={msg.id}
-              className={`mb-4 ${
-                msg.isBot ? "flex justify-start" : "flex justify-end"
+              className={`flex items-start mb-4 ${
+                msg.isBot ? "justify-start" : "justify-end"
               }`}
             >
+              {msg.isBot && (
+                <div className="flex-shrink-0 bg-blue-500 rounded-full p-2 mr-2">
+                  <FaRobot className="text-white" size={14} />
+                </div>
+              )}
               <div
-                className={`max-w-3/4 px-4 py-3 rounded-2xl shadow-sm ${
+                className={`max-w-[75%] px-4 py-2 rounded-xl text-sm ${
                   msg.isBot
-                    ? "bg-white text-gray-800 rounded-tl-md border border-gray-100"
-                    : "text-white rounded-tr-md"
+                    ? "bg-blue-100 text-blue-900 rounded-bl-none"
+                    : "bg-gray-200 text-gray-800 rounded-br-none"
                 }`}
-                style={
-                  msg.isBot
-                    ? {}
-                    : {
-                        background:
-                          "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-                        boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)",
-                      }
-                }
                 dangerouslySetInnerHTML={{ __html: formatMessage(msg.text) }}
               ></div>
             </div>
           ))}
           {isTyping && (
-            <div className="flex justify-start mb-4">
-              <div className="bg-white text-gray-600 px-4 py-3 rounded-2xl rounded-tl-md border border-gray-100 shadow-sm">
+            <div className="flex items-start mb-4 justify-start">
+              <div className="flex-shrink-0 bg-blue-500 rounded-full p-2 mr-2">
+                <FaRobot className="text-white" size={14} />
+              </div>
+              <div className="max-w-[75%] px-4 py-2 rounded-xl text-sm bg-blue-100 text-blue-900 rounded-bl-none">
                 <div className="typing-indicator">
                   <span></span>
                   <span></span>
@@ -662,42 +784,52 @@ const ChatBot = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input area */}
-        <div
-          className="border-t p-4 flex items-center rounded-b-3xl"
-          style={{
-            background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
-            borderColor: "#e5e7eb",
-          }}
-        >
-          <div className="flex-grow relative">
+        {/* Chat input */}
+        <div className="p-3 border-t border-gray-200 bg-white rounded-b-3xl">
+          <div className="flex items-center gap-2">
+            {/* Speech toggle button */}
+            <button
+              onClick={toggleSpeech}
+              title={speechButtonProps.title}
+              className="p-2 rounded-full text-blue-600 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              {isSpeaking || isPaused ? speechButtonProps.icon : <MdVolumeUp size={18} />}
+            </button>
+            
             <input
-              ref={inputRef}
               type="text"
+              ref={inputRef}
+              className="flex-1 p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 text-sm"
+              placeholder={currentLang.placeholderText}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={
-                isListening ? "Listening..." : "Type your message..."
-              }
-              className="w-full bg-white border-2 border-gray-200 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm text-gray-900 placeholder-gray-500"
-              style={{
-                backgroundColor: "#ffffff",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-                color: "#111827",
-              }}
-              disabled={isListening}
+              disabled={isTyping}
             />
+            {isListening ? (
+              <button
+                onClick={toggleListening}
+                title="Stop listening"
+                className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-300"
+              >
+                <MdMicOff size={18} />
+              </button>
+            ) : (
+              <button
+                onClick={toggleListening}
+                title="Start listening"
+                className="p-2 rounded-full text-blue-600 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                <MdMic size={18} />
+              </button>
+            )}
             <button
               onClick={handleSend}
-              disabled={!inputValue.trim() && !isListening}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none hover:bg-blue-700 transition-all duration-200 shadow-md"
-              style={{
-                background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-                boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)",
-              }}
+              title="Send message"
+              className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!inputValue.trim() || isTyping}
             >
-              <FaPaperPlane size={14} />
+              <FaPaperPlane size={18} />
             </button>
           </div>
         </div>
