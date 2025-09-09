@@ -6,6 +6,8 @@ import {
   MdMicOff,
   MdVolumeUp,
   MdVolumeOff,
+  MdPlayArrow,
+  MdPause,
 } from "react-icons/md";
 
 const ChatBot = () => {
@@ -25,21 +27,24 @@ const ChatBot = () => {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeakerOn, setIsSpeakerOn] = useState(true);
-  const [availableVoices, setAvailableVoices] = useState([]);
+  
+  // TTS States
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentSpeechData, setCurrentSpeechData] = useState({
     text: "",
     currentIndex: 0,
     chunks: [],
+    messageId: null,
   });
+  const [availableVoices, setAvailableVoices] = useState([]);
 
   // Refs
   const chatbotRef = useRef(null);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const inputRef = useRef(null);
-  const isSpeakingRef = useRef(false);
+  const speechUtteranceRef = useRef(null);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -80,16 +85,13 @@ const ChatBot = () => {
 
   // Load available voices for speech synthesis
   useEffect(() => {
-    // Function to load voices
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
       setAvailableVoices(voices);
     };
 
-    // Load voices if already available
     loadVoices();
 
-    // Or wait for voices to be loaded
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
@@ -137,12 +139,12 @@ const ChatBot = () => {
     }
   }, [open]);
 
+  // Cleanup speech synthesis when component unmounts
   useEffect(() => {
-    // This effect will forcefully handle pausing if isPaused changes
-    if (isPaused) {
-      forcePauseSpeech();
-    }
-  }, [isPaused]);
+    return () => {
+      stopSpeech();
+    };
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -166,213 +168,172 @@ const ChatBot = () => {
     }
   };
 
-  // Force pause the speech synthesis
-  const forcePauseSpeech = () => {
-    // Cancel any ongoing speech immediately
+  // Stop all speech synthesis
+  const stopSpeech = () => {
     window.speechSynthesis.cancel();
-
-    // Some browsers need multiple cancel calls to actually stop
-    setTimeout(() => {
-      window.speechSynthesis.cancel();
-    }, 50);
-
-    // Set internal flag to prevent further speaking
-    isSpeakingRef.current = false;
-
-    // Log for debugging
-    console.log("Speech forcefully paused");
-  };
-
-  const toggleSpeaker = () => {
-    if (isSpeakerOn) {
-      // Force cancel any ongoing speech
-      forcePauseSpeech();
-      setCurrentSpeechData({ text: "", currentIndex: 0, chunks: [] });
+    if (speechUtteranceRef.current) {
+      speechUtteranceRef.current = null;
     }
-    setIsSpeakerOn(!isSpeakerOn);
+    setIsSpeaking(false);
+    setIsPaused(false);
   };
 
-  const togglePause = () => {
-    if (isPaused) {
-      // Resume speaking from where it was paused
-      setIsPaused(false);
-      isSpeakingRef.current = true;
-      if (currentSpeechData.text && currentSpeechData.chunks.length > 0) {
-        speakFromIndex(
-          currentSpeechData.text,
-          currentSpeechData.chunks,
-          currentSpeechData.currentIndex
-        );
-      }
-    } else {
-      // Pause speaking
-      setIsPaused(true);
-      // Force cancel any ongoing speech
-      forcePauseSpeech();
-    }
+  // Get the best female voice available
+  const getBestVoice = () => {
+    if (availableVoices.length === 0) return null;
+
+    // Try to find a female voice
+    const femaleVoice = availableVoices.find(voice =>
+      voice.name.toLowerCase().includes('female') ||
+      voice.name.toLowerCase().includes('woman') ||
+      voice.name.toLowerCase().includes('zira') ||
+      voice.name.toLowerCase().includes('samantha') ||
+      voice.name.toLowerCase().includes('victoria')
+    );
+
+    if (femaleVoice) return femaleVoice;
+
+    // Fallback to any English voice
+    const englishVoice = availableVoices.find(voice =>
+      voice.lang.startsWith('en')
+    );
+
+    return englishVoice || availableVoices[0];
   };
 
-  // Clean text by removing asterisks and markdown formatting
+  // Clean text for speech (remove markdown)
   const cleanTextForSpeech = (text) => {
-    // Remove markdown formatting like **bold** or *italic*
-    return text.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1");
+    return text
+      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+      .replace(/\*(.*?)\*/g, "$1")     // Remove italic
+      .replace(/#{1,6}\s/g, "")        // Remove headers
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // Remove links
+      .trim();
   };
 
-  const speak = (text) => {
-    if (!isSpeakerOn) return;
+  // Split text into manageable chunks
+  const createTextChunks = (text) => {
+    const maxChunkLength = 200;
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const chunks = [];
+    let currentChunk = "";
 
-    // Cancel any ongoing speech first
-    forcePauseSpeech();
+    for (const sentence of sentences) {
+      const trimmedSentence = sentence.trim();
+      if (currentChunk.length + trimmedSentence.length + 1 <= maxChunkLength) {
+        currentChunk += (currentChunk ? ". " : "") + trimmedSentence;
+      } else {
+        if (currentChunk) {
+          chunks.push(currentChunk + ".");
+        }
+        currentChunk = trimmedSentence;
+      }
+    }
 
-    if (isPaused) {
-      // Just store the text for later resumption but don't speak now
-      const cleanedText = cleanTextForSpeech(text);
-      const chunks = createTextChunks(cleanedText);
-      setCurrentSpeechData({
-        text: cleanedText,
-        currentIndex: 0,
-        chunks: chunks,
-      });
+    if (currentChunk) {
+      chunks.push(currentChunk + ".");
+    }
+
+    return chunks.length > 0 ? chunks : [text];
+  };
+
+  // Speak from a specific chunk index
+  const speakFromIndex = (chunks, startIndex) => {
+    if (startIndex >= chunks.length) {
+      setIsSpeaking(false);
+      setIsPaused(false);
+      setCurrentSpeechData(prev => ({ ...prev, currentIndex: 0 }));
       return;
     }
 
-    if ("speechSynthesis" in window) {
-      const cleanedText = cleanTextForSpeech(text);
-      const textChunks = createTextChunks(cleanedText);
-
-      // Store the speech data for potential pause/resume
-      setCurrentSpeechData({
-        text: cleanedText,
-        currentIndex: 0,
-        chunks: textChunks,
-      });
-
-      // Allow speaking
-      isSpeakingRef.current = true;
-
-      // Start speaking from the beginning
-      speakFromIndex(cleanedText, textChunks, 0);
+    const utterance = new SpeechSynthesisUtterance(chunks[startIndex]);
+    const voice = getBestVoice();
+    
+    if (voice) {
+      utterance.voice = voice;
     } else {
-      console.error("Text-to-speech not supported in this browser");
+      utterance.pitch = 1.1;
     }
-  };
+    
+    utterance.rate = 0.9;
+    utterance.volume = 1.0;
 
-  const createTextChunks = (text) => {
-    // Split text into smaller chunks (around 200 characters each)
-    const chunkSize = 200;
-    const textChunks = [];
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setIsPaused(false);
+    };
 
-    for (let i = 0; i < text.length; i += chunkSize) {
-      // Try to split at sentence boundaries when possible
-      let chunk = text.substring(i, i + chunkSize);
-
-      // If we're not at the end and the chunk doesn't end with punctuation,
-      // find the last sentence boundary
-      if (i + chunkSize < text.length) {
-        const lastPunctuation = Math.max(
-          chunk.lastIndexOf("."),
-          chunk.lastIndexOf("!"),
-          chunk.lastIndexOf("?"),
-          chunk.lastIndexOf(",")
-        );
-
-        if (lastPunctuation !== -1) {
-          // Adjust the chunk to end at the punctuation mark
-          chunk = text.substring(i, i + lastPunctuation + 1);
-          i = i + lastPunctuation + 1 - chunkSize; // Adjust the next starting point
+    utterance.onend = () => {
+      const nextIndex = startIndex + 1;
+      setCurrentSpeechData(prev => ({ ...prev, currentIndex: nextIndex }));
+      
+      // Continue with next chunk if not paused and more chunks exist
+      if (!isPaused && nextIndex < chunks.length) {
+        speakFromIndex(chunks, nextIndex);
+      } else {
+        setIsSpeaking(false);
+        if (nextIndex >= chunks.length) {
+          setCurrentSpeechData(prev => ({ ...prev, currentIndex: 0 }));
         }
-      }
-
-      textChunks.push(chunk);
-    }
-
-    return textChunks;
-  };
-
-  const speakFromIndex = (fullText, chunks, startIndex) => {
-    if (!isSpeakerOn || isPaused || !isSpeakingRef.current) return;
-
-    // Find a female voice
-    let femaleVoice = null;
-
-    // Try to find a female voice
-    for (const voice of availableVoices) {
-      if (
-        voice.name.toLowerCase().includes("female") ||
-        voice.name.toLowerCase().includes("woman") ||
-        voice.name.toLowerCase().includes("girl") ||
-        (voice.gender && voice.gender === "female")
-      ) {
-        femaleVoice = voice;
-        break;
-      }
-    }
-
-    // If no explicit female voice found, try to select common female voices by name
-    if (!femaleVoice) {
-      const commonFemaleVoices = [
-        "Google UK English Female",
-        "Microsoft Zira",
-        "Samantha",
-        "Victoria",
-        "Alex",
-      ];
-      for (const voiceName of commonFemaleVoices) {
-        const voice = availableVoices.find((v) => v.name.includes(voiceName));
-        if (voice) {
-          femaleVoice = voice;
-          break;
-        }
-      }
-    }
-
-    // Process each chunk sequentially starting from startIndex
-    let currentIndex = startIndex;
-
-    const speakNext = () => {
-      // Check again before proceeding to speak the next chunk
-      if (currentIndex < chunks.length && !isPaused && isSpeakingRef.current) {
-        const utterance = new SpeechSynthesisUtterance(chunks[currentIndex]);
-
-        // Set the female voice if found
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-        } else {
-          utterance.pitch = 1.2; // Higher pitch if no female voice found
-        }
-
-        utterance.rate = 1.0;
-
-        // Update current index in state
-        setCurrentSpeechData((prev) => ({
-          ...prev,
-          currentIndex: currentIndex,
-        }));
-
-        // When this chunk finishes, speak the next one
-        utterance.onend = () => {
-          // Only proceed if still allowed to speak
-          if (!isPaused && isSpeakingRef.current) {
-            currentIndex++;
-            speakNext();
-          }
-        };
-
-        // If synthesis is interrupted or errors occur
-        utterance.onerror = (event) => {
-          console.error("Speech synthesis error:", event);
-          if (!isPaused && isSpeakingRef.current) {
-            currentIndex++;
-            speakNext();
-          }
-        };
-
-        window.speechSynthesis.speak(utterance);
       }
     };
 
-    // Start the sequential speaking process
-    speakNext();
+    utterance.onerror = (event) => {
+      console.error("Speech synthesis error:", event);
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
+
+    speechUtteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Start speaking the latest bot message
+  const startSpeaking = () => {
+    // Find the latest bot message
+    const latestBotMessage = [...messages].reverse().find(msg => msg.isBot);
+    
+    if (!latestBotMessage) return;
+
+    const cleanedText = cleanTextForSpeech(latestBotMessage.text);
+    const chunks = createTextChunks(cleanedText);
+
+    setCurrentSpeechData({
+      text: cleanedText,
+      currentIndex: 0,
+      chunks: chunks,
+      messageId: latestBotMessage.id,
+    });
+
+    speakFromIndex(chunks, 0);
+  };
+
+  // Resume speaking from where it was paused
+  const resumeSpeaking = () => {
+    if (currentSpeechData.chunks.length > 0) {
+      speakFromIndex(currentSpeechData.chunks, currentSpeechData.currentIndex);
+    }
+  };
+
+  // Pause speaking
+  const pauseSpeaking = () => {
+    window.speechSynthesis.cancel();
+    setIsPaused(true);
+    setIsSpeaking(false);
+  };
+
+  // Toggle speech (play/pause)
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      // Currently speaking, so pause
+      pauseSpeaking();
+    } else if (isPaused && currentSpeechData.chunks.length > 0) {
+      // Paused, so resume
+      resumeSpeaking();
+    } else {
+      // Not speaking and not paused, so start from beginning
+      startSpeaking();
+    }
   };
 
   const handleSend = async () => {
@@ -388,6 +349,9 @@ const ChatBot = () => {
     setInputValue("");
     setIsTyping(true);
 
+    // Stop any ongoing speech when new message is sent
+    stopSpeech();
+
     // For intro words, provide an immediate welcome response
     if (INTRO_WORDS.includes(inputValue.toLowerCase().trim())) {
       setTimeout(() => {
@@ -398,7 +362,6 @@ const ChatBot = () => {
         };
         setMessages((prev) => [...prev, botResponse]);
         setIsTyping(false);
-        speak(botResponse.text);
       }, 600);
       return;
     }
@@ -414,7 +377,6 @@ const ChatBot = () => {
       };
       setMessages((prev) => [...prev, errorMessage]);
       setIsTyping(false);
-      speak(errorMessage.text);
     }
   };
 
@@ -427,7 +389,6 @@ const ChatBot = () => {
       };
       setMessages((prev) => [...prev, errorMessage]);
       setIsTyping(false);
-      speak(errorMessage.text);
       return;
     }
 
@@ -481,7 +442,6 @@ const ChatBot = () => {
       };
 
       setMessages((prev) => [...prev, botResponse]);
-      speak(botResponseText);
     } catch (error) {
       console.error("Error processing message:", error);
       const errorMessage = {
@@ -490,7 +450,6 @@ const ChatBot = () => {
         id: Date.now(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-      speak(errorMessage.text);
     } finally {
       setIsTyping(false);
     }
@@ -512,6 +471,28 @@ const ChatBot = () => {
 
     return formattedText;
   };
+
+  // Get speaking button icon and title
+  const getSpeechButtonProps = () => {
+    if (isSpeaking) {
+      return {
+        icon: <MdPause size={18} />,
+        title: "Pause speaking"
+      };
+    } else if (isPaused) {
+      return {
+        icon: <MdPlayArrow size={18} />,
+        title: "Resume speaking"
+      };
+    } else {
+      return {
+        icon: <MdVolumeUp size={18} />,
+        title: "Start speaking latest response"
+      };
+    }
+  };
+
+  const speechButtonProps = getSpeechButtonProps();
 
   // Render mobile-friendly chatbot
   return (
@@ -614,54 +595,12 @@ const ChatBot = () => {
           </div>
           <div className="flex space-x-1">
             <button
-              onClick={toggleSpeaker}
+              onClick={toggleSpeech}
               className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
-              title={isSpeakerOn ? "Mute responses" : "Unmute responses"}
+              title={speechButtonProps.title}
             >
-              {isSpeakerOn ? (
-                <MdVolumeUp size={18} />
-              ) : (
-                <MdVolumeOff size={18} />
-              )}
+              {speechButtonProps.icon}
             </button>
-            {isSpeakerOn && (
-              <button
-                onClick={togglePause}
-                className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
-                title={isPaused ? "Resume speaking" : "Pause speaking"}
-              >
-                {isPaused ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="6" y="4" width="4" height="16"></rect>
-                    <rect x="14" y="4" width="4" height="16"></rect>
-                  </svg>
-                )}
-              </button>
-            )}
             <button
               onClick={toggleListening}
               className={`p-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30 ${
