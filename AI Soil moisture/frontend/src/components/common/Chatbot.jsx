@@ -516,10 +516,49 @@ const ChatBot = () => {
   // Render mobile-friendly chatbot
   return (
     <>
+      {/* Custom styles for typing indicator */}
+      <style jsx>{`
+        .typing-indicator {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .typing-indicator span {
+          height: 8px;
+          width: 8px;
+          border-radius: 50%;
+          background-color: #9ca3af;
+          animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) {
+          animation-delay: -0.32s;
+        }
+        .typing-indicator span:nth-child(2) {
+          animation-delay: -0.16s;
+        }
+        @keyframes typing {
+          0%,
+          80%,
+          100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+          }
+          40% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
+
       {/* Back to top button */}
       {!open && isVisible && (
         <div
-          className="fixed bottom-20 right-4 z-30 bg-blue-600 text-white p-3 cursor-pointer rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300"
+          className="fixed bottom-20 right-4 z-30 text-white p-3 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-all duration-300"
+          style={{
+            background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+            boxShadow:
+              "0 8px 25px -5px rgba(59, 130, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+          }}
           title="Back to top"
           onClick={handleBackTop}
         >
@@ -531,7 +570,12 @@ const ChatBot = () => {
       <div
         data-chat-toggle
         onClick={() => setOpen(!open)}
-        className="fixed bottom-8 right-4 z-30 bg-blue-600 text-white p-4 cursor-pointer rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300"
+        className="fixed bottom-8 right-4 z-30 text-white p-4 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-all duration-300"
+        style={{
+          background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+          boxShadow:
+            "0 8px 25px -5px rgba(59, 130, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+        }}
         title={open ? "Close chat" : "Open chat"}
       >
         {open ? <MdClear size={24} /> : <FaRobot size={24} />}
@@ -540,22 +584,38 @@ const ChatBot = () => {
       {/* Chat container */}
       <div
         ref={chatbotRef}
-        className={`fixed right-4 bg-white z-40 border border-gray-200 rounded-2xl shadow-2xl transition-all duration-300 ease-in-out ${
+        className={`fixed right-4 bg-white z-40 border border-gray-300 rounded-3xl shadow-2xl transition-all duration-300 ease-in-out backdrop-blur-sm ${
           open
             ? "bottom-24 w-80 max-w-full h-96 opacity-100 visible"
             : "bottom-16 w-0 h-0 opacity-0 invisible"
         }`}
+        style={{
+          background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+          boxShadow:
+            "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+        }}
       >
         {/* Chat header */}
-        <div className="bg-blue-600 text-white px-4 py-3 rounded-t-2xl flex justify-between items-center">
+        <div
+          className="text-white px-4 py-4 rounded-t-3xl flex justify-between items-center"
+          style={{
+            background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          }}
+        >
           <div className="flex items-center">
-            <FaRobot className="mr-2" />
-            <span className="font-medium">AgriBot</span>
+            <div className="bg-white/20 p-2 rounded-full mr-3">
+              <FaRobot className="text-white" size={16} />
+            </div>
+            <div>
+              <span className="font-semibold text-lg">AgriBot</span>
+              <div className="text-xs text-blue-100">AI Assistant</div>
+            </div>
           </div>
-          <div className="flex">
+          <div className="flex space-x-1">
             <button
               onClick={toggleSpeaker}
-              className="p-1 hover:bg-blue-700 rounded-full mr-2 focus:outline-none"
+              className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
               title={isSpeakerOn ? "Mute responses" : "Unmute responses"}
             >
               {isSpeakerOn ? (
@@ -567,7 +627,7 @@ const ChatBot = () => {
             {isSpeakerOn && (
               <button
                 onClick={togglePause}
-                className="p-1 hover:bg-blue-700 rounded-full mr-2 focus:outline-none"
+                className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
                 title={isPaused ? "Resume speaking" : "Pause speaking"}
               >
                 {isPaused ? (
@@ -604,10 +664,10 @@ const ChatBot = () => {
             )}
             <button
               onClick={toggleListening}
-              className={`p-1 rounded-full focus:outline-none ${
+              className={`p-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30 ${
                 isListening
                   ? "bg-red-500 hover:bg-red-600"
-                  : "hover:bg-blue-700"
+                  : "hover:bg-white/20"
               }`}
               title={isListening ? "Stop listening" : "Start listening"}
             >
@@ -617,27 +677,41 @@ const ChatBot = () => {
         </div>
 
         {/* Messages container */}
-        <div className="h-64 overflow-y-auto p-3 bg-gray-50">
+        <div
+          className="h-64 overflow-y-auto p-4"
+          style={{
+            background: "linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)",
+          }}
+        >
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`mb-3 ${
+              className={`mb-4 ${
                 msg.isBot ? "flex justify-start" : "flex justify-end"
               }`}
             >
               <div
-                className={`max-w-3/4 px-3 py-2 rounded-lg ${
+                className={`max-w-3/4 px-4 py-3 rounded-2xl shadow-sm ${
                   msg.isBot
-                    ? "bg-blue-100 text-gray-800 rounded-tl-none"
-                    : "bg-blue-600 text-white rounded-tr-none"
+                    ? "bg-white text-gray-800 rounded-tl-md border border-gray-100"
+                    : "text-white rounded-tr-md"
                 }`}
+                style={
+                  msg.isBot
+                    ? {}
+                    : {
+                        background:
+                          "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                        boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)",
+                      }
+                }
                 dangerouslySetInnerHTML={{ __html: formatMessage(msg.text) }}
               ></div>
             </div>
           ))}
           {isTyping && (
-            <div className="flex justify-start mb-3">
-              <div className="bg-gray-200 text-gray-600 px-3 py-2 rounded-lg rounded-tl-none">
+            <div className="flex justify-start mb-4">
+              <div className="bg-white text-gray-600 px-4 py-3 rounded-2xl rounded-tl-md border border-gray-100 shadow-sm">
                 <div className="typing-indicator">
                   <span></span>
                   <span></span>
@@ -650,24 +724,43 @@ const ChatBot = () => {
         </div>
 
         {/* Input area */}
-        <div className="border-t p-3 flex items-center bg-white rounded-b-2xl">
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={isListening ? "Listening..." : "Type your message..."}
-            className="flex-grow border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            disabled={isListening}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!inputValue.trim() && !isListening}
-            className="ml-2 bg-blue-600 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none hover:bg-blue-700"
-          >
-            <FaPaperPlane />
-          </button>
+        <div
+          className="border-t p-4 flex items-center rounded-b-3xl"
+          style={{
+            background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+            borderColor: "#e5e7eb",
+          }}
+        >
+          <div className="flex-grow relative">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={
+                isListening ? "Listening..." : "Type your message..."
+              }
+              className="w-full bg-white border-2 border-gray-200 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm text-gray-900 placeholder-gray-500"
+              style={{
+                backgroundColor: "#ffffff",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+                color: "#111827",
+              }}
+              disabled={isListening}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!inputValue.trim() && !isListening}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none hover:bg-blue-700 transition-all duration-200 shadow-md"
+              style={{
+                background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)",
+              }}
+            >
+              <FaPaperPlane size={14} />
+            </button>
+          </div>
         </div>
       </div>
     </>
