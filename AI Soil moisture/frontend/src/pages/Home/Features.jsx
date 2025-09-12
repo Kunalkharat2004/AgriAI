@@ -47,7 +47,7 @@ const Features = () => {
                   
                 </CardHeader>
                 <CardBody className="flex-grow">
-                  <Typography variant="h5" color="blue-gray" className="mb-2 dark:text-white">
+                  <Typography variant="h5" color="blue-gray" className="mb-2 dark:text-gray-300">
                     {t(data.title)}
                   </Typography>
                   <Typography className="dark:text-gray-300">
@@ -56,7 +56,7 @@ const Features = () => {
                 </CardBody>
                 <CardFooter className="pt-0">
                   <Link to={data.path}>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800">Click Here</Button>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800 dark:text-gray-300">Click Here</Button>
                   </Link>
                 </CardFooter>
               </Card>
