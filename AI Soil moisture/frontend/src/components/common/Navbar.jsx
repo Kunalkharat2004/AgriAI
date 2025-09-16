@@ -32,7 +32,6 @@ import { HomeIcon } from "lucide-react";
 const pages = [
   { name: <HomeIcon />, path: "/home" },
   { name: "Disease Detector", path: "/plant-disease-detector" },
-  { name: "Market Analyzer", path: "/cropMarketTrendAnalyzer" },
   { name: "Financial Support", path: "/scheme-market" },
   { name: "Farm Monitoring", path: "/farm-monitoring" },
   // { name: "Soil Recommandation", path: "/soil-recommandation" },
