@@ -704,7 +704,7 @@ const ChatBot = () => {
       {/* Back to top button */}
       {!open && isVisible && (
         <div
-          className="fixed bottom-20 right-4 z-30 text-white p-3 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-green-600"
+          className="fixed bottom-20 right-5 z-30 text-white p-3 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-green-600"
           title="Back to top"
           onClick={handleBackTop}
         >
@@ -716,7 +716,7 @@ const ChatBot = () => {
       <div
         data-chat-toggle
         onClick={() => setOpen(!open)}
-        className="fixed bottom-8 right-4 z-30 text-white p-4 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-green-600"
+        className="fixed bottom-5 right-4 z-30 text-white p-4 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-green-600"
         title={open ? "Close chat" : "Open chat"}
       >
         {open ? <MdClear size={24} /> : <FaRobot size={24} />}
@@ -809,7 +809,7 @@ const ChatBot = () => {
             </div>
           ))}
           {isTyping && (
-            <div className="flex items-start mb-4 justify-start">
+            <div className="flex items-start mb- justify-start">
               <div className="flex-shrink-0 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full p-2.5 mr-3 shadow-sm">
                 <FaRobot className="text-white" size={16} />
               </div>
@@ -823,11 +823,12 @@ const ChatBot = () => {
             </div>
           )}
           <div ref={messagesEndRef} />
+          
         </div>
 
         {/* Chat input */}
-        <div className="p-4 bg-white border-t border-gray-100 rounded-b-2xl">
-          <div className="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-200">
+        <div className="bg-white border-t border-gray-100">
+          <div className="flex items-center gap-3 bg-gray-50 p-3 border border-gray-200">
             {/* Speech toggle button */}
             <button
               onClick={toggleSpeech}
