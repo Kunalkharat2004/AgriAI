@@ -28,7 +28,7 @@ const WeatherForecast = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke-weather-forecast-farmers.hf.space/"
+                src="https://pranit144-weather-forecast-farmers.hf.space/"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
