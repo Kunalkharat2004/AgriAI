@@ -11,21 +11,13 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { styled } from "@mui/system";
-import { useEffect, useRef, useState } from "react";
-import GoogleButton from "react-google-button";
+import { useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../../http/api";
 import { useNavigate } from "react-router-dom";
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-} from "firebase/auth";
-import app from "../../config/firebase";
+
 import useTokenStore from "../../store/useTokenStore";
 
 // Copyright component
@@ -64,9 +56,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(3, 0, 2),
 }));
 
-// Firebase auth configuration
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
 
 export default function LoginPage() {
   const emailRef = useRef("");
@@ -122,45 +111,6 @@ export default function LoginPage() {
       });
     },
   });
-
-  // Function for handling Google Sign-In
-  const handleGoogleSignIn = async () => {
-    setLoading(true); // Set loading state
-    try {
-      // Try signInWithPopup first, fallback to signInWithRedirect
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken(); // Get Google ID token
-
-      // Send the ID token to the backend for verification
-      const response = await fetch(
-        "http://localhost:3600/api/users/auth/google",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Google Sign-In successful!");
-        console.log(data);
-        const token = data.access_token;
-        setToken(token);
-        navigate("/");
-      } else {
-        toast.error(`Google Sign-In failed: ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Error during Google Sign-In", error);
-      toast.error("Google Sign-In failed!");
-    } finally {
-      setLoading(false); // Stop loading after the operation
-    }
-  };
-
   // Function for handling email/password sign-in
   const handleOnSubmit = (e) => {
     e.preventDefault();
