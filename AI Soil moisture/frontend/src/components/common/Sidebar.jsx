@@ -17,7 +17,7 @@ export default function SideBar({
 }) {
   return (
     <Card
-      className={`h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 dark:bg-gray-800 dark:shadow-none transition-all duration-300 ${
+      className={`h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 bg-white-pure dark:bg-gray-800 dark:shadow-none transition-all duration-300 ${
         sidebarOpen ? "w-[20rem]" : "w-0 hidden transition-all overflow-hidden"
       }`}
     >
