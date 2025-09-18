@@ -44,6 +44,7 @@ import AdminDashboard from "./pages/Admin/Dashboard";
 import FinancialSupport from "./pages/SoilAnalytic/SoilAnalytic.jsx";
 import FarmMonitoring from "./pages/Fertilizers/FertilizersPage.jsx";
 import SoilRecommandation from "./pages/Soil Recommandation/SoilRecommandation.jsx";
+import Profile from "./pages/MyProfile/Profile.jsx";
 // import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ const router = createBrowserRouter([
       { path: "/weather-and-geofencing", element: <WeatherGeoFencing /> }, // done
       // { path: "/soil-analytic", element: <SoilAnalytic /> }, // done
       { path: "/scheme-market", element: <FinancialSupport /> }, // done
+      { path: "/my-profile", element: <Profile /> }, // done
       // { path: "/fertilizer-irrigation", element: <FertilizersPage /> }, // done
       { path: "/farm-monitoring", element: <FarmMonitoring /> }, // done
       { path: "/soil-recommandation", element: <SoilRecommandation /> }, // done

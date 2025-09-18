@@ -36,6 +36,7 @@ const pages = [
   { name: "Farm Monitoring", path: "/farm-monitoring" },
   // { name: "Soil Recommandation", path: "/soil-recommandation" },
   { name: "Shop", path: "/shop" },
+  { name: "My Profile", path: "/my-profile" },
 ];
 
 const settings = ["My Orders", "Contact", "About", "Logout"];
