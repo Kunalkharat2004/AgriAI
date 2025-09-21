@@ -29,7 +29,7 @@ const FertilizerRecommendation = () => {
 				</div>
 			)}
 			<iframe
-				src="https://pranit144-pestipedia.hf.space/"
+				src="https://rushimane2003-pestipedia.hf.space/"
 				title=""
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}
