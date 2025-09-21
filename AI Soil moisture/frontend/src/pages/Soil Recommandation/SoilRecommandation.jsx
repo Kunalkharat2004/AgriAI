@@ -4,17 +4,17 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 import {
   MdWaterDrop,
   MdOutlineSecurity,
-  MdAgriculture,
+  MdAttachMoney,
 } from "react-icons/md";
 import { GiWateringCan, GiFarmer } from "react-icons/gi";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import SideBar from "../../components/common/Sidebar";
-
-import Intrusion from "./SideNavs/Intrusion";
-import GeoFencing from "../WeatherGeoFencing/SideNavs/GeoFencing";
 import SoilReport from "./SideNavs/SoilReport";
 import SoilReportByLocation from "./SideNavs/SoilReportByLocation";
-import SoilAnalytic from "./SideNavs/Fertilizer";
+import Fertilizer from "./SideNavs/Fertilizer";
+import CropByNPK from "./SideNavs/CropByNPK";
+import CropBySoli from "./SideNavs/CropBySoli";
+import CropPricePrediction from "./SideNavs/CropPricePrediction";
 
 const SoilRecommandation = () => {
   // State to track the currently selected component
@@ -39,25 +39,6 @@ const SoilRecommandation = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Fallback placeholder components for views not provided
-  const CropRecommandationComp = () => (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-2">Crop Recommendation</h2>
-      <p className="text-sm text-muted-foreground">
-        UI for "Crop by NPK" will render here.
-      </p>
-    </div>
-  );
-
-  const CropSoilComp = () => (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-2">Crop by Soil</h2>
-      <p className="text-sm text-muted-foreground">
-        UI for "Crop by Soil" will render here.
-      </p>
-    </div>
-  );
-
   // Function to render the component based on the selected item
   const renderActiveComponent = () => {
     switch (activeComponent) {
@@ -65,12 +46,14 @@ const SoilRecommandation = () => {
         return <SoilReport />;
       case "SoilReportByLocation":
         return <SoilReportByLocation />;
-      case "SoilAnalytic":
-        return <SoilAnalytic />;
-      case "CropRecommandation":
-        return <CropRecommandationComp />;
+      case "Fertilizer Recommendation":
+        return <Fertilizer />;
+      case "Crop Price Prediction":
+        return <CropPricePrediction />;
+      case "CropByNPK":
+        return <CropByNPK />;
       case "CropSoil":
-        return <CropSoilComp />;
+        return <CropBySoli />;
       default:
         return <SoilReport />;
     }
@@ -89,12 +72,17 @@ const SoilRecommandation = () => {
       icon: <FaMapMarkedAlt className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />,
     },
     {
-      id: "SoilAnalytic",
+      id: "Fertilizer Recommendation",
       label: "Fertilizer",
       icon: <GiWateringCan className="h-6 w-6 text-yellow-500 dark:text-yellow-300" />,
     },
     {
-      id: "CropRecommandation",
+      id: "Crop Price Prediction",
+      label: "Crop Price Prediction",
+      icon: <MdAttachMoney className="h-6 w-6 text-yellow-500 dark:text-yellow-300" />,
+    },
+    {
+      id: "CropByNPK",
       label: "Crop by NPK",
       icon: <GiFarmer className="h-6 w-6 text-green-600 dark:text-green-400" />,
     },

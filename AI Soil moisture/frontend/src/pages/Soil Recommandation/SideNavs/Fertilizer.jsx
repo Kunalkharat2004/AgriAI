@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const SoilAnalytic = () => {
+const Fertilizer = () => {
     const [loading, setLoading] = useState(true);
 
     const handleIframeLoad = () => {
@@ -29,7 +29,7 @@ const SoilAnalytic = () => {
             )}
             <iframe
                 src="https://pranit144-fertilizer-recommendation-usage.hf.space"
-                title="Crop Disease Detection"
+                title="Fertilizer Recommendation"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
             />
@@ -37,4 +37,4 @@ const SoilAnalytic = () => {
     );
 };
 
-export default SoilAnalytic;
+export default Fertilizer;

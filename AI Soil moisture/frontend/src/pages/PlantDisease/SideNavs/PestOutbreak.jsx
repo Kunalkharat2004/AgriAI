@@ -28,7 +28,7 @@ const PestOutbreak = () => {
 				</div>
 			)}
 			<iframe
-				src="https://pranit144-pest-outbreak-prediction.hf.space/"
+				src="https://rajkhanke007-pest-outbreak-prediction.hf.space/"
 				title="Pest Outbreak Prediction"
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}

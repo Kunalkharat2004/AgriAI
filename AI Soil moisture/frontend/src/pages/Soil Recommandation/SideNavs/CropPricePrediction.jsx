@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const WeatherForecast = () => {
+const CropByNPK = () => {
     const [loading, setLoading] = useState(true);
 
     const handleIframeLoad = () => {
@@ -28,8 +28,8 @@ const WeatherForecast = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke-weather-forecast-farmers.hf.space/"
-                title="Weather Forecast"
+                src="https://rajkhanke007-crop-price-prediction.hf.space/"
+                title="Crop Price Prediction"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
             />
@@ -37,4 +37,4 @@ const WeatherForecast = () => {
     );
 };
 
-export default WeatherForecast;
+export default CropByNPK;

@@ -33,8 +33,6 @@ import "./i18n";
 import { CommonProvider } from "./context/common/commonContext.jsx";
 import DiseasePage from "./pages/PlantDisease/DiseasePage.jsx";
 import WeatherGeoFencing from "./pages/WeatherGeoFencing/WeatherGeoFencing.jsx";
-import SoilAnalytic from "./pages/SoilAnalytic/SoilAnalytic.jsx";
-import FertilizersPage from "./pages/Fertilizers/FertilizersPage.jsx";
 import ShopPage from "./pages/Shop/ShopPage";
 import ProductDetailPage from "./pages/Shop/ProductDetailPage";
 import CartPage from "./pages/Shop/CartPage";
