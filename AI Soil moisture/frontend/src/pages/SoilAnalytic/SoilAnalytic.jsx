@@ -89,7 +89,7 @@ const FinancialSupport = () => {
             sidebarOpen={sidebarOpen}
             setActiveItem={setActiveItem}
             activeItem={activeItem}
-            sidebarTitle="Soil Analytics"
+            sidebarTitle="Financial Support"
             menuItems={menuItems}
             isMobile={isMobile}
           />
@@ -107,7 +107,7 @@ const FinancialSupport = () => {
               sidebarOpen={sidebarOpen}
               setActiveItem={setActiveItem}
               activeItem={activeItem}
-              sidebarTitle="Soil Analytics"
+              sidebarTitle="Financial Support"
               menuItems={menuItems}
               isMobile={isMobile}
             />
