@@ -174,7 +174,7 @@ const WaterRequirement = () => {
             )}
 
             <iframe
-                src="https://rushimane2003-irrigation-monitoring.hf.space/"
+                src="https://huggingface.co/spaces/RushiMane2003/irrigation_trial"
                 title="Water Requirement Prediction"
                 style={{ 
                     width: "100%", 
