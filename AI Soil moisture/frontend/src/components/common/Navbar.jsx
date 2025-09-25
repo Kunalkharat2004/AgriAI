@@ -29,15 +29,17 @@ import { useCart } from "../../context/CartContext";
 import { isUserAdmin } from "../../services/userService";
 import { HomeIcon } from "lucide-react";
 
-const pages = [
+const farmerPages = [
   { name: <HomeIcon />, path: "/home" },
   { name: "Disease Detector", path: "/plant-disease-detector" },
   { name: "Financial Support", path: "/scheme-market" },
   { name: "Farm Monitoring", path: "/farm-monitoring" },
-  // { name: "Soil Recommandation", path: "/soil-recommandation" },
+  { name: "Talk with expert", path: "/talk-with-expert" },
   { name: "Shop", path: "/shop" },
   { name: "My Profile", path: "/my-profile" },
 ];
+
+const expertPages = [{ name: "Appointments", path: "/appointments" }];
 
 const settings = ["My Orders", "Contact", "About", "Logout"];
 
@@ -49,7 +51,7 @@ const Navbar = () => {
 
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
-  const { token, setToken, userId, setUserId } = useTokenStore(
+  const { token, setToken, userId, setUserId, userRole } = useTokenStore(
     (state) => state
   );
 
@@ -153,7 +155,8 @@ const Navbar = () => {
               <img
                 src={Logo}
                 alt="MOE Logo"
-                className="h-10 md:h-12 w-auto mt-2"
+                className="h-10 md:h-12 w-auto mt-2 cursor-pointer"
+                onClick={() => navigate("/")}
               />
             </Box>
           </Box>
@@ -195,18 +198,20 @@ const Navbar = () => {
                 }}
               >
                 {/* Navigation Links in Mobile Menu */}
-                {pages.map((page) => (
-                  <MenuItem
-                    key={page.name}
-                    onClick={handleCloseNavMenu}
-                    component={Link}
-                    to={page.path}
-                  >
-                    <Typography sx={{ textAlign: "center" }}>
-                      {page.name}
-                    </Typography>
-                  </MenuItem>
-                ))}
+                {(userRole === "expert" ? expertPages : farmerPages).map(
+                  (page) => (
+                    <MenuItem
+                      key={page.name}
+                      onClick={handleCloseNavMenu}
+                      component={Link}
+                      to={page.path}
+                    >
+                      <Typography sx={{ textAlign: "center" }}>
+                        {page.name}
+                      </Typography>
+                    </MenuItem>
+                  )
+                )}
                 <LanguageSwitcher />
               </Box>
             </Menu>
@@ -245,7 +250,7 @@ const Navbar = () => {
               justifyContent: "center",
             }}
           >
-            {pages.map((page) => (
+            {(userRole === "expert" ? expertPages : farmerPages).map((page) => (
               <Button
                 key={page.name}
                 onClick={() => handleCloseNavMenu()}

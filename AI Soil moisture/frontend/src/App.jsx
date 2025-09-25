@@ -43,6 +43,8 @@ import FinancialSupport from "./pages/SoilAnalytic/SoilAnalytic.jsx";
 import FarmMonitoring from "./pages/Fertilizers/FertilizersPage.jsx";
 import SoilRecommandation from "./pages/Soil Recommandation/SoilRecommandation.jsx";
 import Profile from "./pages/MyProfile/Profile.jsx";
+import TalkWithExpert from "./pages/TalkWithExpert/TalkWithExpert.jsx";
+import Appoinments from "./pages/Expert/Appoinments.jsx";
 // import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 
 const queryClient = new QueryClient();
@@ -55,8 +57,10 @@ const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "/plant-disease-detector", element: <DiseasePage /> }, // done
       { path: "/weather-and-geofencing", element: <WeatherGeoFencing /> }, // done
+      { path: "/appointments", element: <Appoinments /> }, // done
       // { path: "/soil-analytic", element: <SoilAnalytic /> }, // done
       { path: "/scheme-market", element: <FinancialSupport /> }, // done
+      { path: "/talk-with-expert", element: <TalkWithExpert /> }, // done
       { path: "/my-profile", element: <Profile /> }, // done
       // { path: "/fertilizer-irrigation", element: <FertilizersPage /> }, // done
       { path: "/farm-monitoring", element: <FarmMonitoring /> }, // done
