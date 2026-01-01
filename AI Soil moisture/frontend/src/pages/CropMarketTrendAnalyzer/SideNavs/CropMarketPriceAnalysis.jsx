@@ -29,7 +29,7 @@ const CropMarketPriceAnalysis = () => {
         </div>
       )}
       <iframe
-        src="https://rushimane2003-market-trial1.hf.space/"
+        src="https://pranit144-market-v2.hf.space/"
         title=""
         style={{ width: "100%", height: "100%", border: "none" }}
         onLoad={handleIframeLoad}
