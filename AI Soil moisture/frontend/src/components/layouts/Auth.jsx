@@ -3,9 +3,11 @@ import ScrollToTop from "../common/ScrollToTop";
 import useTokenStore from "../../store/useTokenStore";
 
 const Auth = () => {
-	const { token } = useTokenStore((state) => state);
+	const { token, userRole } = useTokenStore((state) => state);
 	if (token) {
-		return <Navigate to={"/home"} replace />;
+		// Redirect admin users to admin dashboard, others to home
+		const redirectPath = userRole === "admin" ? "/admin/dashboard" : "/home";
+		return <Navigate to={redirectPath} replace />;
 	}
 	return (
 		<>

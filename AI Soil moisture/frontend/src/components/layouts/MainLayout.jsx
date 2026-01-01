@@ -11,11 +11,16 @@ import commonContext from "../../context/common/commonContext";
 import useTokenStore from "../../store/useTokenStore";
 
 const MainLayout = () => {
-	const { token } = useTokenStore((state) => state);
+	const { token, userRole } = useTokenStore((state) => state);
 
-	// // Redirect if token is missing
+	// Redirect if token is missing
 	if (!token) {
 		return <Navigate to="/auth/login" replace />;
+	}
+
+	// Redirect admin users to admin dashboard
+	if (userRole === "admin") {
+		return <Navigate to="/admin/dashboard" replace />;
 	}
 
 	// const { isLoading, toggleLoading } = useContext(commonContext);

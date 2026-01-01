@@ -99,8 +99,11 @@ export default function LoginPage() {
         autoClose: 3000,
       });
 
-      // Redirect based on role
-      if (userRole === "admin") {
+      // Get the email from the form
+      const userEmail = emailRef.current.value;
+
+      // Redirect based on role or specific admin email
+      if (userRole === "admin" || userEmail === "admin@gmail.com") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");
