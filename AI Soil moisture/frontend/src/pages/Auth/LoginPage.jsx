@@ -62,7 +62,7 @@ export default function LoginPage() {
   const passwordRef = useRef("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state for better UX
-  const { setToken, setUserId, setUserRole } = useTokenStore((state) => state);
+  const { setToken, setUserId, setUserName, setUserRole } = useTokenStore((state) => state);
   const navigate = useNavigate();
 
   // Mutation for email/password login
@@ -86,6 +86,7 @@ export default function LoginPage() {
       // Store in Zustand
       setToken(authToken);
       setUserId(userId);
+      setUserName(user.name);
       setUserRole(userRole);
 
       // Also store in localStorage if rememberMe is checked

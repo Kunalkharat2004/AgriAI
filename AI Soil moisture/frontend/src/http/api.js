@@ -41,3 +41,24 @@ export const getExperts = async () => {
   const res = await api.get("/users/experts");
   return res.data;
 };
+
+export const createAppointmentApi = async (payload) => {
+  return api.post("/appointments", payload);
+};
+
+export const getAppointmentsForExpert = async (expertId) => {
+  const res = await api.get(`/appointments/expert/${expertId}`);
+  return res.data;
+};
+
+export const updateAppointmentCallStatus = async (payload) => {
+  return api.put("/appointments/call-status", payload);
+};
+
+export const getProfile = async (token) => {
+  return api
+    .get("/users/profile", {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
+    .then((res) => res.data);
+};

@@ -23,6 +23,7 @@ const useTokenStore = create(
       (set) => ({
         token: getInitialToken(),
         userId: null,
+        userName: null,
         userRole: getInitialRole(),
         setToken: (data) => {
           console.log("Token set in Zustand store");
@@ -38,6 +39,7 @@ const useTokenStore = create(
           set({ token: "", userId: null, userRole: "" });
         },
         setUserId: (id) => set({ userId: id }),
+        setUserName: (userName) => set({userName: userName}),
         setUserRole: (role) => {
           localStorage.setItem("userRole", role);
           set({ userRole: role });

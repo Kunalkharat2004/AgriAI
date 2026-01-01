@@ -140,5 +140,31 @@ export const disconnectSocket = () => {
   }
 };
 
+// Join the expert's appointments room (for expert users)
+export const joinExpertRoom = (expertId) => {
+  if (!socket || !socket.connected) {
+    console.error("Socket not connected");
+    return;
+  }
+
+  socket.emit("join_expert_room", expertId);
+  console.log("Joined expert room for expert:", expertId);
+};
+
+// Register a listener for appointment events
+export const onAppointmentEvent = (eventName, callback) => {
+  if (!socket || !socket.connected) {
+    console.error("Socket not connected");
+    return () => {};
+  }
+
+  socket.on(eventName, callback);
+
+  // Return a function to remove this specific listener
+  return () => {
+    socket.off(eventName, callback);
+  };
+};
+
 // Get the socket instance
 export const getSocket = () => socket;

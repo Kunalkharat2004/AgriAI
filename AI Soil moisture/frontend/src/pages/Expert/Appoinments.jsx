@@ -1,16 +1,9 @@
 import { useMemo, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardActions,
   Avatar,
-  Button,
   Chip,
   Typography,
-  Grid,
   Box,
-  Divider,
   Paper,
   Table,
   TableBody,
@@ -20,56 +13,97 @@ import {
   TableRow,
   TextField,
   InputAdornment,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-
-const hardcodedAppointments = [
-  {
-    id: "apt-1",
-    farmerName: "Ramesh Patil",
-    crops: ["Cotton", "Soybean"],
-    issue: "Leaf yellowing and stunted growth",
-    preferredTime: "Today, 4:30 PM",
-    location: "Nashik, Maharashtra",
-    languages: ["Marathi", "Hindi"],
-    photoUrl: "https://i.pravatar.cc/100?img=12",
-  },
-  {
-    id: "apt-2",
-    farmerName: "Sita Devi",
-    crops: ["Wheat"],
-    issue: "Soil moisture irregularity",
-    preferredTime: "Tomorrow, 11:00 AM",
-    location: "Jaipur, Rajasthan",
-    languages: ["Hindi"],
-    photoUrl: "https://i.pravatar.cc/100?img=22",
-  },
-  {
-    id: "apt-3",
-    farmerName: "Harpreet Singh",
-    crops: ["Rice", "Mustard"],
-    issue: "Pest infestation (brown planthopper)",
-    preferredTime: "Fri, 2:00 PM",
-    location: "Amritsar, Punjab",
-    languages: ["Punjabi", "Hindi"],
-    photoUrl: "https://i.pravatar.cc/100?img=32",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getAppointmentsForExpert } from "../../http/api";
+import useTokenStore from "../../store/useTokenStore";
+import CallStatusActions from "./components/CallStatusActions";
+import { useEffect } from "react";
+import {
+  initializeSocket,
+  joinExpertRoom,
+  onAppointmentEvent,
+} from "../../services/socketService";
+import { toast } from "react-toastify";
 
 const Appoinments = () => {
-  const appointments = useMemo(() => hardcodedAppointments, []);
+  const { userId: expertId } = useTokenStore((state) => state);
   const [query, setQuery] = useState("");
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["appointments", expertId],
+    queryFn: () => getAppointmentsForExpert(expertId),
+    enabled: !!expertId,
+  });
+
+  // Initialize socket and listen for appointment notifications
+  useEffect(() => {
+    if (!expertId) return;
+
+    // Initialize socket connection
+    initializeSocket();
+
+    // Join expert room
+    joinExpertRoom(expertId);
+
+    // Listen for appointment call requests
+    const unsubscribeCallRequest = onAppointmentEvent(
+      "appointment_call_requested",
+      (data) => {
+        toast.info(`New call request from ${data.farmerName}!`, {
+          autoClose: 6000,
+        });
+        refetch(); // Refresh the appointments list
+      }
+    );
+
+    // Listen for appointment call accepted
+    const unsubscribeCallAccepted = onAppointmentEvent(
+      "appointment_call_accepted",
+      (data) => {
+        toast.success(`Call accepted for ${data.farmerName}!`, {
+          autoClose: 4000,
+        });
+        refetch();
+      }
+    );
+
+    // Listen for appointment call ended
+    const unsubscribeCallEnded = onAppointmentEvent(
+      "appointment_call_ended",
+      (data) => {
+        toast.info(`Call ended with ${data.farmerName}`, {
+          autoClose: 4000,
+        });
+        refetch();
+      }
+    );
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribeCallRequest();
+      unsubscribeCallAccepted();
+      unsubscribeCallEnded();
+    };
+  }, [expertId, refetch]);
+
+  const appointments = useMemo(() => {
+    return data?.appointments || [];
+  }, [data]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return appointments;
     return appointments.filter((a) => {
       return (
-        a.farmerName.toLowerCase().includes(q) ||
-        a.location.toLowerCase().includes(q) ||
-        a.issue.toLowerCase().includes(q) ||
-        a.crops.join(" ").toLowerCase().includes(q) ||
-        a.languages.join(" ").toLowerCase().includes(q)
+        a.farmerName?.toLowerCase().includes(q) ||
+        a.location?.toLowerCase().includes(q) ||
+        a.issue?.toLowerCase().includes(q) ||
+        a.crops?.join(" ").toLowerCase().includes(q) ||
+        a.languages?.join(" ").toLowerCase().includes(q)
       );
     });
   }, [appointments, query]);
@@ -110,59 +144,121 @@ const Appoinments = () => {
               <TableCell>Preferred time</TableCell>
               <TableCell>Location</TableCell>
               <TableCell>Languages</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered.map((apt) => (
-              <TableRow key={apt.id} hover>
-                <TableCell>
-                  <Box className="flex items-center gap-2">
-                    <Avatar src={apt.photoUrl} alt={apt.farmerName} />
-                    <Box>
-                      <Typography variant="subtitle2" className="font-medium">
-                        {apt.farmerName}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box className="flex flex-wrap gap-1.5">
-                    {apt.crops.map((c) => (
-                      <Chip key={c} label={c} size="small" />
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell sx={{ maxWidth: 280 }}>
-                  <Typography variant="body2" noWrap title={apt.issue}>
-                    {apt.issue}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{apt.preferredTime}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{apt.location}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Box className="flex flex-wrap gap-1.5">
-                    {apt.languages.map((l) => (
-                      <Chip key={l} label={l} size="small" variant="outlined" />
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell align="right">
-                  <Box className="flex justify-end gap-1.5">
-                    <Button size="small" variant="outlined">
-                      Details
-                    </Button>
-                    <Button size="small" variant="contained">
-                      Start call
-                    </Button>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  <Box className="flex items-center justify-center py-8">
+                    <CircularProgress />
+                    <Typography variant="body2" className="ml-2">
+                      Loading appointments...
+                    </Typography>
                   </Box>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  <Alert severity="error">
+                    Failed to load appointments. Please try again.
+                  </Alert>
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  <Typography variant="body2" color="text.secondary">
+                    {query
+                      ? "No appointments found matching your search."
+                      : "No appointments yet."}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((apt) => (
+                <TableRow key={apt._id} hover>
+                  <TableCell>
+                    <Box className="flex items-center gap-2">
+                      <Avatar
+                        src={`https://i.pravatar.cc/100?img=${
+                          apt.farmerName?.charCodeAt(0) || 1
+                        }`}
+                        alt={apt.farmerName}
+                      />
+                      <Box>
+                        <Typography variant="subtitle2" className="font-medium">
+                          {apt.farmerName}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box className="flex flex-wrap gap-1.5">
+                      {apt.crops?.map((c) => (
+                        <Chip key={c} label={c} size="small" />
+                      )) || (
+                        <Typography variant="body2" color="text.secondary">
+                          -
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 280 }}>
+                    <Typography variant="body2" noWrap title={apt.issue}>
+                      {apt.issue}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {apt.preferredTime || "Not specified"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {apt.location || "-"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Box className="flex flex-wrap gap-1.5">
+                      {apt.languages?.map((l) => (
+                        <Chip
+                          key={l}
+                          label={l}
+                          size="small"
+                          variant="outlined"
+                        />
+                      )) || (
+                        <Typography variant="body2" color="text.secondary">
+                          -
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={apt.status || "pending"}
+                      size="small"
+                      color={
+                        apt.status === "completed"
+                          ? "success"
+                          : apt.status === "scheduled"
+                          ? "primary"
+                          : apt.status === "cancelled"
+                          ? "error"
+                          : "default"
+                      }
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <CallStatusActions appointment={apt} />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

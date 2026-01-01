@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Paper,
   TextField,
@@ -6,10 +6,17 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import JitsiVideoCall from "../Expert/components/JitsiVideoCall";
 import ExpertsTable from "./components/ExpertsTable";
 import ScheduleMeetDialog from "./components/ScheduleMeetDialog";
-import { useQuery } from "@tanstack/react-query";
-import { getExperts } from "../../http/api";
+import PreCallFormDialog from "./components/PreCallFormDialog";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createAppointmentApi,
+  getExperts,
+  updateAppointmentCallStatus,
+} from "../../http/api";
+import { toast } from "react-toastify";
 
 const transformExpert = (e) => ({
   id: e.id,
@@ -27,10 +34,89 @@ const TalkWithExpert = () => {
   const [query, setQuery] = useState("");
   const [selectedExpert, setSelectedExpert] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [preFormOpen, setPreFormOpen] = useState(false);
+  const [appointmentId, setAppointmentId] = useState(null);
+  const [isWaitingForExpert, setIsWaitingForExpert] = useState(false);
+  const [callRoomName, setCallRoomName] = useState(null);
+  const [isCallActive, setIsCallActive] = useState(false);
+
+  useEffect(() => {
+    // Listen for call accepted event from socket
+    const handleCallAccepted = (data) => {
+      console.log("Received call accepted event:", data);
+
+      if (data) {
+        setIsWaitingForExpert(false);
+        setDialogOpen(false);
+        setCallRoomName(data.roomName);
+        setIsCallActive(true);
+        toast.success("Expert accepted the call! Joining video call...");
+      }
+    };
+
+    console.log(
+      "Setting up socket listener, socket status:",
+      window.socket?.connected
+    );
+
+    if (window.socket) {
+      // Remove any existing listeners to prevent duplicates
+      window.socket.off("appointment_call_accepted");
+
+      // Add the new listener
+      window.socket.on("appointment_call_accepted", handleCallAccepted);
+
+      // Join the user orders room for receiving call events
+      if (window.user?._id) {
+        console.log("Joining user orders room:", window.user._id);
+        window.socket.emit("join_user_orders", window.user._id);
+      }
+    }
+
+    // Cleanup
+    return () => {
+      if (window.socket) {
+        console.log("Cleaning up socket listener");
+        window.socket.off("appointment_call_accepted", handleCallAccepted);
+      }
+    };
+  }, []);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["experts"],
     queryFn: getExperts,
+  });
+
+  const { mutate: createAppointment } = useMutation({
+    mutationFn: createAppointmentApi,
+    onSuccess: (data) => {
+      setAppointmentId(data.data.appointment._id);
+      toast.success("Appointment created successfully", {
+        autoClose: 4000,
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message, {
+        autoClose: 4000,
+      });
+    },
+  });
+
+  const { mutate: requestCall } = useMutation({
+    mutationFn: updateAppointmentCallStatus,
+    onSuccess: () => {
+      toast.success("Connecting to expert, please wait...", {
+        autoClose: 6000,
+      });
+      // Note: We don't close the dialog here anymore since we're waiting for expert response
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to request call", {
+        autoClose: 4000,
+      });
+      setIsWaitingForExpert(false);
+      setDialogOpen(false);
+    },
   });
 
   const experts = useMemo(() => {
@@ -52,23 +138,84 @@ const TalkWithExpert = () => {
 
   const handleCallClick = (expert) => {
     setSelectedExpert(expert);
-    setDialogOpen(true);
+    setPreFormOpen(true);
   };
 
   const handleCloseDialog = () => {
-    setDialogOpen(false);
+    if (!isWaitingForExpert) {
+      setDialogOpen(false);
+      setIsWaitingForExpert(false);
+    }
   };
 
-  const handleStartInstant = (expert) => {
-    // Placeholder: integrate Jitsi here later
-    console.log("Start instant meet with", expert?.name);
-    setDialogOpen(false);
+  const handleClosePreForm = () => {
+    setPreFormOpen(false);
+    setAppointmentId(null);
   };
 
-  const handleSchedule = ({ expert, dateTime, duration }) => {
-    // Placeholder: persist schedule to backend later
-    console.log("Schedule meet", { expert: expert?.name, dateTime, duration });
-    setDialogOpen(false);
+  const handlePreFormProceed = (data) => {
+    const payload = { ...data };
+    createAppointment(payload);
+    setPreFormOpen(false);
+    
+    // Open Jitsi Meet room in a new tab
+    window.open('https://meet.jit.si/Room6312', '_blank');
+  };
+
+  const handleStartInstant = () => {
+    if (!appointmentId) {
+      toast.error("Appointment not created yet. Please try again.");
+      setDialogOpen(false);
+      return;
+    }
+
+    // Reset any existing call state
+    setIsCallActive(false);
+    setCallRoomName(null);
+
+    // Generate room name for the call
+    const roomName = `agri-call-${appointmentId}-${Date.now()}`;
+    console.log("Generated room name:", roomName);
+
+    setCallRoomName(roomName);
+    setIsWaitingForExpert(true);
+
+    // Ensure socket is connected and joined to the correct room
+    if (window.socket && window.user?._id) {
+      window.socket.emit("join_user_orders", window.user._id);
+    }
+
+    // Request call with the expert
+    requestCall({
+      appointmentId: appointmentId,
+      callStatus: "farmer_requested",
+      roomName: roomName,
+    });
+
+    // Set a timeout for expert response
+    const timeoutId = setTimeout(() => {
+      if (isWaitingForExpert) {
+        setIsWaitingForExpert(false);
+        setCallRoomName(null);
+        setDialogOpen(false);
+        toast.error(
+          "Sorry, the expert didn't receive the call. Please try again later."
+        );
+      }
+    }, 20000); // 20 seconds
+
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handleCallEnd = () => {
+    setIsCallActive(false);
+    setCallRoomName(null);
+    if (appointmentId) {
+      requestCall({
+        appointmentId: appointmentId,
+        callStatus: "call_ended",
+      });
+    }
   };
 
   return (
@@ -104,13 +251,40 @@ const TalkWithExpert = () => {
         )}
       </Paper>
 
+      <PreCallFormDialog
+        open={preFormOpen}
+        onClose={handleClosePreForm}
+        expert={selectedExpert}
+        onProceed={handlePreFormProceed}
+      />
+
       <ScheduleMeetDialog
         open={dialogOpen}
         onClose={handleCloseDialog}
         expert={selectedExpert}
         onStartInstant={handleStartInstant}
-        onSchedule={handleSchedule}
+        isWaitingForExpert={isWaitingForExpert}
       />
+
+      {isCallActive && callRoomName && (
+        <JitsiVideoCall
+          key={callRoomName} // Add key to force remount when room changes
+          open={true}
+          onClose={handleCallEnd}
+          roomName={callRoomName}
+          displayName={window.user?.name || "Farmer"}
+          onCallEnd={handleCallEnd}
+        />
+      )}
+
+      {/* Debug info - remove in production */}
+      <div style={{ display: "none" }}>
+        <p>Debug Info:</p>
+        <p>Call Active: {String(isCallActive)}</p>
+        <p>Room Name: {callRoomName}</p>
+        <p>Waiting: {String(isWaitingForExpert)}</p>
+        <p>Socket Connected: {String(window.socket?.connected)}</p>
+      </div>
     </div>
   );
 };

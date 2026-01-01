@@ -38,9 +38,9 @@ const ExpandMore = styled((props) => {
 }));
 
 // Custom theme colors for buy/rent options
-const buyColor = "#1565c0"; // Blue color
-const rentColor = "#6a1b9a"; // Purple that complements green
-const addToCartColor = "#1b5e20"; // Dark green for add to cart button
+const buyColor = "#1a5d3a"; // Deep green for buy
+const rentColor = "#198754"; // Accent green for rent
+const addToCartColor = "#198754"; // Accent green for add to cart button
 
 const ProductCard = ({ product }) => {
   const [expanded, setExpanded] = useState(false);
@@ -96,15 +96,17 @@ const ProductCard = ({ product }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        transition: "transform 0.2s, box-shadow 0.2s",
+        transition: "all 0.3s ease",
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: 3,
+          transform: "translateY(-6px)",
+          boxShadow: theme.palette.mode === 'dark' ? '0 15px 40px rgba(0,0,0,0.6)' : '0 15px 40px rgba(0,0,0,0.12)',
         },
-        borderRadius: 2,
+        borderRadius: "20px",
         overflow: "hidden",
         position: "relative",
-        border: `1px solid ${theme.palette.divider}`,
+        border: theme.palette.mode === 'dark' ? '1px solid #3d3d3d' : '1px solid #dee2e6',
+        bgcolor: theme.palette.mode === 'dark' ? '#2d2d2d' : 'white',
+        boxShadow: theme.palette.mode === 'dark' ? '0 10px 40px rgba(0,0,0,0.5)' : '0 10px 40px rgba(0,0,0,0.08)',
       }}
     >
       <Box
@@ -153,7 +155,7 @@ const ProductCard = ({ product }) => {
           sx={{
             fontSize: "0.95rem",
             fontWeight: 600,
-            color: "text.primary",
+            color: theme.palette.mode === 'dark' ? '#e0e0e0' : 'text.primary',
             mb: 0.5,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -229,6 +231,9 @@ const ProductCard = ({ product }) => {
               fontSize: "0.75rem",
               textTransform: "capitalize",
               py: 0.4,
+              fontFamily: "'Outfit', sans-serif",
+              border: theme.palette.mode === 'dark' ? '1px solid #3d3d3d' : '1px solid #dee2e6',
+              color: theme.palette.mode === 'dark' ? '#e0e0e0' : 'inherit',
             },
           }}
         >
@@ -238,10 +243,11 @@ const ProductCard = ({ product }) => {
             sx={{
               width: "50%",
               "&.Mui-selected": {
-                bgcolor: buyColor,
-                color: "white",
+                bgcolor: theme.palette.mode === 'dark' ? '#4ade80' : buyColor,
+                color: theme.palette.mode === 'dark' ? '#0a1f14' : 'white',
+                borderColor: (theme.palette.mode === 'dark' ? '#4ade80' : buyColor) + " !important",
                 "&:hover": {
-                  bgcolor: "#0d47a1", // Darker blue on hover
+                  bgcolor: theme.palette.mode === 'dark' ? '#22c55e' : '#143d2e',
                 },
               },
             }}
@@ -254,10 +260,11 @@ const ProductCard = ({ product }) => {
             sx={{
               width: "50%",
               "&.Mui-selected": {
-                bgcolor: rentColor,
-                color: "white",
+                bgcolor: theme.palette.mode === 'dark' ? '#4ade80' : rentColor,
+                color: theme.palette.mode === 'dark' ? '#0a1f14' : 'white',
+                borderColor: (theme.palette.mode === 'dark' ? '#4ade80' : rentColor) + " !important",
                 "&:hover": {
-                  bgcolor: "#4a1270", // Darker purple on hover
+                  bgcolor: theme.palette.mode === 'dark' ? '#22c55e' : '#0f6b3f',
                 },
               },
             }}
@@ -271,7 +278,7 @@ const ProductCard = ({ product }) => {
           component="p"
           sx={{
             fontWeight: 700,
-            color: purchaseOption === "buy" ? buyColor : rentColor,
+            color: theme.palette.mode === 'dark' ? '#4ade80' : (purchaseOption === "buy" ? buyColor : rentColor),
             fontSize: "1.1rem",
             mb: 0.5,
           }}
@@ -313,16 +320,21 @@ const ProductCard = ({ product }) => {
           startIcon={<AddShoppingCartIcon />}
           onClick={handleAddToCart}
           sx={{
-            borderRadius: 1.5,
+            borderRadius: "8px",
             flex: 1,
-            boxShadow: 0,
+            boxShadow: "none",
             textTransform: "none",
             fontWeight: 600,
             fontSize: "0.85rem",
-            bgcolor: addToCartColor,
+            fontFamily: "'Outfit', sans-serif",
+            bgcolor: theme.palette.mode === 'dark' ? '#4ade80' : addToCartColor,
+            color: theme.palette.mode === 'dark' ? '#0a1f14' : 'white',
             "&:hover": {
-              bgcolor: "#133814", // Darker green on hover
+              bgcolor: theme.palette.mode === 'dark' ? '#22c55e' : '#143d2e',
+              transform: "translateY(-2px)",
+              boxShadow: theme.palette.mode === 'dark' ? '0 4px 12px rgba(74, 222, 128, 0.5)' : '0 4px 12px rgba(25, 135, 84, 0.3)',
             },
+            transition: "all 0.3s ease",
           }}
           size="small"
           disabled={!product.inStock}
@@ -334,8 +346,8 @@ const ProductCard = ({ product }) => {
           size="small"
           sx={{
             ml: 1,
-            bgcolor: "action.hover",
-            color: "text.primary",
+            bgcolor: theme.palette.mode === 'dark' ? '#3d3d3d' : 'action.hover',
+            color: theme.palette.mode === 'dark' ? '#e0e0e0' : 'text.primary',
           }}
         >
           <InfoOutlinedIcon fontSize="small" />
@@ -352,8 +364,8 @@ const ProductCard = ({ product }) => {
       </CardActions>
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent sx={{ py: 1, px: 2 }}>
-          <Typography variant="subtitle2" fontWeight={600} fontSize="0.8rem">
+        <CardContent sx={{ py: 1, px: 2, bgcolor: theme.palette.mode === 'dark' ? '#1a1a1a' : 'inherit' }}>
+          <Typography variant="subtitle2" fontWeight={600} fontSize="0.8rem" sx={{ color: theme.palette.mode === 'dark' ? '#e0e0e0' : 'inherit' }}>
             Features:
           </Typography>
           <Box component="ul" sx={{ pl: 2, mt: 0.5, mb: 0 }}>

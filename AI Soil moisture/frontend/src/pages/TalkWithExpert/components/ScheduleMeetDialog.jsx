@@ -1,18 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 
 const ScheduleMeetDialog = ({
@@ -20,23 +14,10 @@ const ScheduleMeetDialog = ({
   onClose,
   expert,
   onStartInstant,
-  onSchedule,
+  isWaitingForExpert = false,
 }) => {
-  const [mode, setMode] = useState("instant");
-  const [dateTime, setDateTime] = useState("");
-  const [duration, setDuration] = useState(15);
-
-  const disabledSchedule = useMemo(
-    () => mode === "schedule" && !dateTime,
-    [mode, dateTime]
-  );
-
   const handleConfirm = () => {
-    if (mode === "instant") {
-      onStartInstant && onStartInstant(expert);
-    } else {
-      onSchedule && onSchedule({ expert, dateTime, duration });
-    }
+    onStartInstant && onStartInstant();
   };
 
   return (
@@ -50,49 +31,6 @@ const ScheduleMeetDialog = ({
         </div>
       </DialogTitle>
       <DialogContent className="space-y-4">
-        <ToggleButtonGroup
-          color="primary"
-          value={mode}
-          exclusive
-          onChange={(_, val) => val && setMode(val)}
-          className="flex"
-        >
-          <ToggleButton value="instant" className="flex-1">
-            Instant meet
-          </ToggleButton>
-          <ToggleButton value="schedule" className="flex-1">
-            Schedule
-          </ToggleButton>
-        </ToggleButtonGroup>
-
-        {mode === "schedule" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TextField
-              type="datetime-local"
-              label="Date & time"
-              InputLabelProps={{ shrink: true }}
-              value={dateTime}
-              onChange={(e) => setDateTime(e.target.value)}
-              fullWidth
-            />
-            <FormControl fullWidth>
-              <InputLabel id="duration-label">Duration</InputLabel>
-              <Select
-                labelId="duration-label"
-                label="Duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              >
-                {[15, 30, 45, 60].map((m) => (
-                  <MenuItem key={m} value={m}>
-                    {m} min
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-        )}
-
         <div className="rounded-md bg-blue-50 p-3 text-blue-700 border border-blue-200">
           <Typography variant="body2">
             You will receive a Jitsi meeting link after confirmation. Share it
@@ -101,15 +39,18 @@ const ScheduleMeetDialog = ({
         </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="inherit">
+        <Button onClick={onClose} color="inherit" disabled={isWaitingForExpert}>
           Cancel
         </Button>
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={disabledSchedule}
+          disabled={isWaitingForExpert}
+          startIcon={
+            isWaitingForExpert && <CircularProgress size={20} color="inherit" />
+          }
         >
-          {mode === "instant" ? "Start now" : "Schedule meet"}
+          {isWaitingForExpert ? "Waiting for expert..." : "Start now"}
         </Button>
       </DialogActions>
     </Dialog>
