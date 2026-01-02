@@ -28,7 +28,7 @@ const PumpStatus = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-irrigation-pump-status.hf.space/"
+                src="https://prc142004-irrigation-pump-status.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
