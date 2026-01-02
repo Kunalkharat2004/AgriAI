@@ -28,7 +28,7 @@ const SoilReport = () => {
                 </div>
             )}
             <iframe
-                src="krushimitravit/Soil_Report_Anaylsis"
+                src="https://prc142004-soil-report-anaylsis.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
