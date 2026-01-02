@@ -28,7 +28,7 @@ const CropDisease = () => {
 				</div>
 			)}
 			<iframe
-				src="https://sikeaditya-aio2.hf.space"
+				src="https://krushimitravit-disease-and-pest.hf.space"
 				title="Crop Disease Detection"
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}
