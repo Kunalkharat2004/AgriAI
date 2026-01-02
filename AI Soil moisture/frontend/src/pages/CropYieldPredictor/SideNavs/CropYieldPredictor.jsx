@@ -29,7 +29,7 @@ const CropYieldPredictor = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-crop-yield-prediction.hf.space/"
+                src="https://krushimitravit-crop-yield-prediction.hf.space"
                 title=""
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
