@@ -28,7 +28,7 @@ const Schemes = () => {
                 </div>
             )}
             <iframe
-                src="https://sikeaditya-agri-schemes.hf.space"
+                src="https://prc142004-agri-schemes.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
