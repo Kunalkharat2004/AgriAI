@@ -28,7 +28,7 @@ const CropBySoli = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-crop-recommendation-system-soil.hf.space/"
+                src="https://krushimitravit-crop-recommendation-system-soil.hf.space"
                 title="Crop By Soil"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
