@@ -28,7 +28,7 @@ const PumpStatus = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-irrigation-pump-status.hf.space/"
+                src="https://krushimitravit-farm-geofencing.hf.space"
                 title="Geo Fencing"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
