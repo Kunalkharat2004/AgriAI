@@ -161,7 +161,7 @@ const Weather = () => {
             )}
 
             <iframe
-                src="https://rajkhanke-weather-forecast-farmers.hf.space/"
+                src="https://prc142004-weather-forecast-farmers.hf.space"
                 title="Weather Forecast"
                 style={{ 
                     width: "100%", 
