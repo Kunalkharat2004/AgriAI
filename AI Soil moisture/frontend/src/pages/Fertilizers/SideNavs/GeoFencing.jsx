@@ -6,7 +6,7 @@ const PumpStatus = () => {
     const handleIframeLoad = () => {
         setLoading(false);
     };
-
+    
     return (
         <div style={{ position: "relative", height: "100vh", width: "100%" }}>
             {loading && (
