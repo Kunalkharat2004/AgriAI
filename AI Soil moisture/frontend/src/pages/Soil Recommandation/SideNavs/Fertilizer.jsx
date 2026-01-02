@@ -28,7 +28,7 @@ const Fertilizer = () => {
                 </div>
             )}
             <iframe
-                src="https://pranit144-fertilizer-recommendation-usage.hf.space"
+                src="https://krushimitravit-fertilizer-recommendation-usage.hf.space"
                 title="Fertilizer Recommendation"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
