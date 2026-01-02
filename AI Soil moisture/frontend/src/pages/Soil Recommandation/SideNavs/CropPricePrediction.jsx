@@ -28,7 +28,7 @@ const CropByNPK = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke007-crop-price-prediction.hf.space/"
+                src="https://prc142004-soil-analysis-with-location.hf.space"
                 title="Crop Price Prediction"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
