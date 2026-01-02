@@ -28,7 +28,7 @@ const Education = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke-farmer-training.static.hf.space/index.html"
+                src="https://prc142004-farmer-training.static.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
