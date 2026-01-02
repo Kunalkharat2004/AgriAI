@@ -28,7 +28,7 @@ const PestGeoSpatial = () => {
 				</div>
 			)}
 			<iframe
-				src="https://rajkhanke-pest-geospatial-analytics.hf.space/"
+				src="https://krushimitravit-pest-geospatial-analytics.hf.space"
 				title="Population Analysis"
 				style={{ width: "100%", height: "100%", border: "none" }}
 				onLoad={handleIframeLoad}
