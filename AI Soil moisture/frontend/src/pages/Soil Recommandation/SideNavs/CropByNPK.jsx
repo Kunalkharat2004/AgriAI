@@ -28,7 +28,7 @@ const CropByNPK = () => {
                 </div>
             )}
             <iframe
-                src="https://rajkhanke-crop-recommendation-npk.hf.space/"
+                src="https://pranit144-crop-recommendation-npk.hf.space"
                 title="Crop By NPK"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
