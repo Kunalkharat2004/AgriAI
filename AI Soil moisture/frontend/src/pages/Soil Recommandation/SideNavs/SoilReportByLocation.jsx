@@ -150,7 +150,7 @@ const SoilReportByLocation = () => {
             )}
 
             <iframe
-                src="https://rushimane2003-soil-analysis-with-location.hf.space/"
+                src="https://prc142004-soil-analysis-with-location.hf.space"
                 title="Soil Report by Location"
                 style={{ 
                     width: "100%", 
