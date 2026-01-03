@@ -28,7 +28,7 @@ const Intrusion = () => {
                 </div>
             )}
             <iframe
-                src="https://improvisatory-armandina-nonsuppressed.ngrok-free.dev/"
+                src="https://pranitchilbule221-intrusion-detection.hf.space"
                 title="Crop Disease Detection"
                 style={{ width: "100%", height: "100%", border: "none" }}
                 onLoad={handleIframeLoad}
